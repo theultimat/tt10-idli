@@ -99,7 +99,7 @@ module idli_core_m (
 		if (_sv2v_0)
 			;
 		// Trace: idli_core_m.sv:40:15
-		_unused_tie_off = &{i_core_gck, i_core_rst_n, i_core_mem_sio, i_core_din, i_core_dout_acp, 1'b0};
+		_unused_tie_off = &{i_core_gck, i_core_rst_n, i_core_mem_sio, i_core_din, i_core_dout_acp, i_core_din_vld, 1'b0};
 	end
 	initial _sv2v_0 = 0;
 endmodule

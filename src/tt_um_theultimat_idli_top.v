@@ -83,7 +83,7 @@ module tt_um_theultimat_idli_top (
 		if (_sv2v_0)
 			;
 		// Trace: tt_um_theultimat_idli_top.sv:58:15
-		_unused_tie_off = &{ena, ui_in[1], ui_in[3], uio_in[3:2], 1'b0};
+		_unused_tie_off = &{ena, ui_in[1], ui_in[3], uio_in[3:0], 1'b0};
 	end
 	initial _sv2v_0 = 0;
 endmodule

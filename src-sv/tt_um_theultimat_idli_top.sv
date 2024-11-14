@@ -55,6 +55,6 @@ module tt_um_theultimat_idli_top import idli_pkg::*; (
   always_comb uo_out[1] = '0;
   always_comb uo_out[3] = '0;
 
-  always_comb _unused_tie_off = &{ena, ui_in[1], ui_in[3], uio_in[3:2], 1'b0};
+  always_comb _unused_tie_off = &{ena, ui_in[1], ui_in[3], uio_in[3:0], 1'b0};
 
 endmodule

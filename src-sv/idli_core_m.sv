@@ -38,7 +38,8 @@ module idli_core_m import idli_pkg::*; (
   always_comb o_core_dout_vld    = '0;
 
   always_comb _unused_tie_off = &{
-    i_core_gck, i_core_rst_n, i_core_mem_sio, i_core_din, i_core_dout_acp, 1'b0
+    i_core_gck, i_core_rst_n, i_core_mem_sio, i_core_din, i_core_dout_acp,
+    i_core_din_vld, 1'b0
   };
 
 endmodule
