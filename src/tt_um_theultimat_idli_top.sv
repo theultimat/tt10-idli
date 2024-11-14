@@ -5,23 +5,56 @@
 
 `default_nettype none
 
-module tt_um_theultimat_idli_top (
-    input  wire [7:0] ui_in,    // Dedicated inputs
-    output wire [7:0] uo_out,   // Dedicated outputs
-    input  wire [7:0] uio_in,   // IOs: Input path
-    output wire [7:0] uio_out,  // IOs: Output path
-    output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-    input  wire       ena,      // always 1 when the design is powered, so you can ignore it
-    input  wire       clk,      // clock
-    input  wire       rst_n     // reset_n - low to reset
+`include "idli_pkg.svh"
+
+module tt_um_theultimat_idli_top import idli_pkg::*; (
+    input  var logic [7:0] ui_in,    // Dedicated inputs
+    output var logic [7:0] uo_out,   // Dedicated outputs
+    input  var logic [7:0] uio_in,   // IOs: Input path
+    output var logic [7:0] uio_out,  // IOs: Output path
+    output var logic [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
+    input  var logic       ena,      // always 1 when the design is powered, so you can ignore it
+    input  var logic       clk,      // clock
+    input  var logic       rst_n     // reset_n - low to reset
 );
 
-  // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+  // Whether SQI IO pins are currently inputs or outputs.
+  sqi_io_mode_t mem_io_mode;
 
-  // List all unused inputs to prevent warnings
-  wire _unused = &{ena, clk, rst_n, 1'b0};
+  // Used to tie off unused inputs.
+  logic _unused_tie_off;
+
+  // Instantiate the top level of the core.
+  idli_core_m core_u (
+    .i_core_gck         (clk),
+    .i_core_rst_n       (rst_n),
+
+    .o_core_mem_sck     (uio_out[0]),
+    .o_core_mem_cs      (uio_out[1]),
+    .o_core_mem_io_mode (mem_io_mode),
+
+    .i_core_mem_sio     (uio_in [7:4]),
+    .o_core_mem_sio     (uio_out[7:4]),
+
+    .i_core_din         (ui_in [7:4]),
+    .i_core_din_vld     (ui_in [2]),
+    .o_core_din_acp     (uo_out[0]),
+
+    .o_core_dout        (uo_out[7:4]),
+    .o_core_dout_vld    (uo_out[2]),
+    .i_core_dout_acp    (ui_in [0])
+  );
+
+  // SCK and CS are always outputs, and the SIO pins are configured based on
+  // the current IO mode. Unused pins are set to outputs and tied off as zero.
+  always_comb uio_oe = {{4{mem_io_mode}}, 4'hf};
+
+  // Tie off unused.
+  always_comb uio_out[3:2] = '0;
+
+  always_comb uo_out[1] = '0;
+  always_comb uo_out[3] = '0;
+
+  always_comb _unused_tie_off = &{ena, ui_in[1], ui_in[3], uio_in[3:2], 1'b0};
 
 endmodule
