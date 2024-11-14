@@ -1,0 +1,59 @@
+    .include "init.ia"
+
+    .data
+
+data:   .zeros 200              # Maximum 100 inputs.
+
+    .text
+
+bsort:                          # r1 = &data, r2 = n
+    putp    p0, zr              # swapped = 0
+    mov     r3, 1               # i = 1
+1:  geu     p1, r3, r2          # p = i >= n
+    b.p1    @2f                 # if (p) goto 2f
+    sub     r4, r3, 1           # j = i - 1
+    push    r4                  # push(j)
+    ldhs    r4, r1, r4          # x = data[j]
+    ldhs    r5, r1, r3          # y = data[i]
+    lt      p1, r5, r4          # p = y < x
+    sths.p1 r4, r1, r3          # if (p) data[i] = x
+    pop     r4                  # j = pop()
+    sths.p1 r5, r1, r4          # if (p) data[j] = y
+    putp.p1 p0, 1               # if (p) swapped = 1
+    add     r3, r3, 1           # i++
+    b       @1b                 # goto 1b
+2:  sub     r2, r2, 1           # n--
+    b.p0    @bsort              # if (swapped) goto bsort
+    ret                         # return
+
+
+_start:
+    in      r1                  # n = number of inputs
+    ltu     p0, r1, 100         # p = n < 100
+    b.p0    @1f                 # if (p) goto 1f
+    out     0xeeee              # out << ERROR
+    ret                         # return
+1:  add     r2, pc, @data       # ptr = &data
+    mov     r3, zr              # i = 0
+2:  geu     p0, r3, r1          # p = i >= n
+    b.p0    @3f                 # if (p) goto 3f
+    in      r4                  # in >> tmp
+    sths    r4, r2, r3          # data[i] = tmp
+    add     r3, r3, 1           # i++
+    b       @2b                 # goto 2b
+3:  mov     r2, r1              # r2 = n
+    add     r1, pc, @data       # r1 = &data
+    push    r2                  # push(n)
+    add     r3, pc, @4f         # ret = &4
+    push    r3                  # push(ret)
+    b       @bsort              # call bsort(&data, n)
+4:  pop     r2                  # n = pop()
+    add     r1, pc, @data       # ptr = &data
+    mov     r3, zr              # i = 0
+5:  geu     p0, r3, r2          # p = i >= n
+    b.p0    @6f                 # if (p) goto 6f
+    ldhs    r4, r1, r3          # tmp = data[i]
+    out     r4                  # out << tmp
+    add     r3, r3, 1           # i++
+    b       @5b                 # goto 5b
+6:  ret                         # return

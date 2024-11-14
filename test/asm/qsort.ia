@@ -1,0 +1,80 @@
+    .include "init.ia"
+
+    .data
+
+data:   .zeros 200              # Maximum 100 inputs.
+
+    .text
+
+
+qsort:                          # r1 = &data, r2 = &data[lo], r3 = &data[hi]
+    ge      p0, r2, r3          # p = &data[lo] >= &data[hi]
+    ret.p0                      # if (p) return
+    lt      p0, r2, r1          # p = &data[lo] < &data[0]
+    ret.p0                      # if (p) return
+    lt      p0, r3, r1          # p = &data[hi] < &data[0]
+    ret.p0                      # if (p) return
+    push    r3                  # push(&data[hi])
+    push    r2                  # push(&data[lo])
+    push    r1                  # push(&data)
+    ldh!    r1, r2, -2          # pivot = &data[lo], i = lo - 1
+    add     r3, r3, 2           # j = hi + 1
+1:  !ldh    r4, r2, 2           # x = &data[++i]
+    lt      p0, r4, r1          # p = x < pivot
+    b.p0    @1b                 # if (p) goto 1b
+2:  !ldh    r5, r3, -2          # y = &data[--j]
+    lt      p0, r1, r5          # p = pivot < y
+    b.p0    @2b                 # if (p) goto 2b
+    ge      p0, r2, r3          # p = &data[i] >= &data[j]
+    b.p0    @3f                 # if (p) goto 3f
+    sth     r4, r3, zr          # data[j] = x
+    sth     r5, r2, zr          # data[i] = y
+    b       @1b                 # goto 1b
+3:  pop     r1                  # &data = pop()
+    pop     r2                  # &data[lo] = pop()
+    push    r3                  # &data[p] = &data[j], push(&data[p])
+    add     r4, pc, @4f         # ret = &4f
+    push    r4                  # push(ret)
+    b       @qsort              # call qsort(&data, &data[lo], &data[p])
+4:  pop     r2                  # &data[p] = pop()
+    add     r2, r2, 2           # p++
+    pop     r3                  # &data[hi] = pop()
+    add     r4, pc, @5f         # ret = &5f
+    push    r4                  # push(ret)
+    b       @qsort              # call qsort(&data, &data[p], &data[hi])
+5:  ret                         # return
+
+
+_start:
+    in      r1                  # n = number of inputs
+    ltu     p0, r1, 100         # p = n < 100
+    b.p0    @1f                 # if (p) goto 1f
+    out     0xeeee              # out << ERROR
+    ret                         # return
+1:  add     r2, pc, @data       # ptr = &data
+    mov     r3, zr              # i = 0
+2:  geu     p0, r3, r1          # p = i >= n
+    b.p0    @3f                 # if (p) goto 3f
+    in      r4                  # in >> tmp
+    sths    r4, r2, r3          # data[i] = tmp
+    add     r3, r3, 1           # i++
+    b       @2b                 # goto 2b
+3:  push    r1                  # push(n)
+    sub     r3, r1, 1           # n--
+    add     r3, r3, r3          # n *= 2
+    add     r1, pc, @data       # r1 = &data[0]
+    mov     r2, r1              # r2 = &data[0]
+    add     r3, r3, r1          # r3 = &data[n-1]
+    add     r4, pc, @4f         # ret = &4f
+    push    r4                  # push(ret)
+    b       @qsort              # call qsort(&data[0], &data[n-1])
+4:  pop     r2                  # n = pop()
+    add     r1, pc, @data       # ptr = &data
+    mov     r3, zr              # i = 0
+5:  geu     p0, r3, r2          # p = i >= n
+    b.p0    @6f                 # if (p) goto 6f
+    ldhs    r4, r1, r3          # tmp = data[i]
+    out     r4                  # out << tmp
+    add     r3, r3, 1           # i++
+    b       @5b                 # goto 5b
+6:  ret                         # return

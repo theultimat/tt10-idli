@@ -1,0 +1,22 @@
+    .include "init.ia"
+
+    .text
+
+gcd:                            # r1 = a, r2 = b
+    eq      p0, r1, r2          # p0 = a == b
+    ret.p0                      # if (p0) return a
+    lt      p0, r2, r1          # p0 = b < a
+    ge      p1, r2, r1          # p0 = b >= a
+    sub.p0  r1, r1, r2          # if (p0) a -= b
+    sub.p1  r2, r2, r1          # if (p0) b -= a
+    b       @gcd                # goto gcd
+
+
+_start:
+    in      r1                  # Read a from input.
+    in      r2                  # Read b from input.
+    add     r3, pc, @1f         # Calculate return address.
+    push    r3                  # Push return address.
+    b       @gcd                # Branch to function.
+1:  out     r1                  # Write result to output.
+    ret                         # Return to wrapper.

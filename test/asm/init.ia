@@ -1,0 +1,21 @@
+    .text
+
+    mov     r2, zr      # Zero init general purpose registers.
+    mov     r3, zr
+    mov     r4, zr
+    mov     r5, zr
+    mov     r6, zr
+    putp    p0, zr      # Zero init predicate registers.
+    putp    p1, zr
+    putp    p2, zr
+
+    add     r1, zr, $1f # Push return address onto stack then zero register.
+    push    r1
+    mov     r1, zr
+    j       $_start     # Branch to entry of program.
+
+1:  out     0xf0f0      # Write standard output pattern to end test.
+    out     0x0f0f
+    out     0xffff
+
+2:  b       @2b         # Hang after test exit.
