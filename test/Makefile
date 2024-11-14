@@ -2,15 +2,30 @@
 # See https://docs.cocotb.org/en/stable/quickstart.html for more info
 
 # defaults
-SIM ?= verilator
+SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
-SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = tt_um_theultimat_idli_top.sv idli_core_m.sv
+
+SOURCE_NAMES := tt_um_theultimat_idli_top idli_core_m
+
+
+# Use SystemVerilog for verilator, sv2v converted for iverilog.
+ifeq ($(SIM),verilator)
 
 COMPILE_ARGS += -Wall
 
 EXTRA_ARGS := --trace-fst --trace-structs --x-assign unique --x-initial unique
 PLUSARGS := +verilator+rand+reset+2
+
+SRC_DIR = $(PWD)/../src-sv
+PROJECT_SOURCES = $(addsuffix .sv,$(SOURCE_NAMES))
+
+else
+
+SRC_DIR = $(PWD)/../src
+PROJECT_SOURCES = $(addsuffix .v,$(SOURCE_NAMES))
+
+endif
+
 
 ifneq ($(GATES),yes)
 
