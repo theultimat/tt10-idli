@@ -90,7 +90,8 @@ class Idli:
             sources = self._read_sources(instr)
             redirect = self.instr_funcs[instr.name](instr, sources)
         else:
-            print(f'SKIP   {isa.PREGS_INV[pred]}')
+            if self.trace:
+                print(f'SKIP   {isa.PREGS_INV[pred]}')
             redirect = False
 
         # If the instruction hasn't redirected the PC then it needs to be
