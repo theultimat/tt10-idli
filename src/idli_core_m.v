@@ -25,7 +25,6 @@ module idli_core_m (
 	// Trace: idli_core_m.sv:11:3
 	output reg o_core_mem_cs;
 	// Trace: idli_core_m.sv:12:3
-	// removed localparam type idli_pkg_sqi_io_mode_t
 	output reg o_core_mem_io_mode;
 	// Trace: idli_core_m.sv:15:3
 	input wire [3:0] i_core_mem_sio;
@@ -60,6 +59,7 @@ module idli_core_m (
 		o_core_mem_cs = 1'sb1;
 	end
 	// Trace: idli_core_m.sv:34:3
+	// removed localparam type idli_pkg_sqi_io_mode_t
 	always @(*) begin
 		if (_sv2v_0)
 			;

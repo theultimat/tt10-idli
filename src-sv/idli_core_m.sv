@@ -9,7 +9,7 @@ module idli_core_m import idli_pkg::*; (
   // SQI memory control interface.
   output var logic          o_core_mem_sck,
   output var logic          o_core_mem_cs,
-  output var sqi_io_mode_t  o_core_mem_io_mode,
+  output var logic          o_core_mem_io_mode,
 
   // SQI memory inputs and outputs.
   input  var logic  [3:0]   i_core_mem_sio,

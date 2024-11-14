@@ -1,4 +1,4 @@
-SRCS := $(wildcard *.sv)
+SRCS := $(shell find . -type f -name '*.sv')
 DSTS := $(patsubst %.sv,../src/%.v,$(SRCS))
 
 FLAGS := -I. -v
