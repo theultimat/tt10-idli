@@ -22,7 +22,7 @@ module tt_um_theultimat_idli_top (
   wire mem_io_mode;
 
   // Used to tie off unused inputs.
-  wire _unused_tie_off;
+  wire _unused;
 
   // Instantiate the top level of the core.
   idli_core_m core_u (
@@ -55,6 +55,6 @@ module tt_um_theultimat_idli_top (
   assign uo_out[1] = 1'b0;
   assign uo_out[3] = 1'b0;
 
-  assign _unused_tie_off = &{ena, ui_in[1], ui_in[3], uio_in[3:0], 1'b0};
+  assign _unused = &{ena, ui_in[1], ui_in[3], uio_in[3:0], 1'b0};
 
 endmodule
