@@ -2,10 +2,15 @@
 # See https://docs.cocotb.org/en/stable/quickstart.html for more info
 
 # defaults
-SIM ?= icarus
+SIM ?= verilator
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = tt_um_theultimat_idli_top.sv
+PROJECT_SOURCES = tt_um_theultimat_idli_top.sv idli_core_m.sv
+
+COMPILE_ARGS += -Wall
+
+EXTRA_ARGS := --trace-fst --trace-structs --x-assign unique --x-initial unique
+PLUSARGS := +verilator+rand+reset+2
 
 ifneq ($(GATES),yes)
 
