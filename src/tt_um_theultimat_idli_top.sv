@@ -7,7 +7,7 @@
 
 `include "idli_pkg.svh"
 
-module tt_um_theultimat_idli_top (
+module tt_um_theultimat_idli_top import idli_pkg::*; (
     input  var logic [7:0] ui_in,    // Dedicated inputs
     output var logic [7:0] uo_out,   // Dedicated outputs
     input  var logic [7:0] uio_in,   // IOs: Input path
@@ -17,8 +17,6 @@ module tt_um_theultimat_idli_top (
     input  var logic       clk,      // clock
     input  var logic       rst_n     // reset_n - low to reset
 );
-
-  import idli_pkg::*;
 
   // Whether SQI IO pins are currently inputs or outputs.
   sqi_io_mode_t mem_io_mode;

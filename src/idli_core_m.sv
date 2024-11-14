@@ -1,32 +1,30 @@
 `include "idli_pkg.svh"
 
 // Top level of the core.
-module idli_core_m (
+module idli_core_m import idli_pkg::*; (
   // Clock and reset.
-  input  var logic                    i_core_gck,
-  input  var logic                    i_core_rst_n,
+  input  var logic          i_core_gck,
+  input  var logic          i_core_rst_n,
 
   // SQI memory control interface.
-  output var logic                    o_core_mem_sck,
-  output var logic                    o_core_mem_cs,
-  output var idli_pkg::sqi_io_mode_t  o_core_mem_io_mode,
+  output var logic          o_core_mem_sck,
+  output var logic          o_core_mem_cs,
+  output var sqi_io_mode_t  o_core_mem_io_mode,
 
   // SQI memory inputs and outputs.
-  input  var logic  [3:0]             i_core_mem_sio,
-  output var logic  [3:0]             o_core_mem_sio,
+  input  var logic  [3:0]   i_core_mem_sio,
+  output var logic  [3:0]   o_core_mem_sio,
 
   // Data input interface.
-  input  var logic  [3:0]             i_core_din,
-  input  var logic                    i_core_din_vld,
-  output var logic                    o_core_din_acp,
+  input  var logic  [3:0]   i_core_din,
+  input  var logic          i_core_din_vld,
+  output var logic          o_core_din_acp,
 
   // Data output interface.
-  output var logic  [3:0]             o_core_dout,
-  output var logic                    o_core_dout_vld,
-  input  var logic                    i_core_dout_acp
+  output var logic  [3:0]   o_core_dout,
+  output var logic          o_core_dout_vld,
+  input  var logic          i_core_dout_acp
 );
-
-  import idli_pkg::*;
 
   // TODO Make use of the signals.
   logic _unused_tie_off;
