@@ -9,7 +9,7 @@ module idli_core_m import idli_pkg::*; (
   // SQI memory control interface.
   output var logic          o_core_mem_sck,
   output var logic          o_core_mem_cs,
-  output var logic          o_core_mem_io_mode,
+  output var sqi_io_mode_t  o_core_mem_io_mode,
 
   // SQI memory inputs and outputs.
   input  var logic  [3:0]   i_core_mem_sio,
@@ -30,12 +30,12 @@ module idli_core_m import idli_pkg::*; (
   logic _unused;
 
   always_comb o_core_mem_sck     = i_core_gck;
-  always_comb o_core_mem_cs      = 1'b1;
+  always_comb o_core_mem_cs      = '1;
   always_comb o_core_mem_io_mode = SQI_IO_MODE_OUT;
-  always_comb o_core_mem_sio     = 4'b0;
-  always_comb o_core_din_acp     = 1'b0;
-  always_comb o_core_dout        = 4'b0;
-  always_comb o_core_dout_vld    = 1'b0;
+  always_comb o_core_mem_sio     = '0;
+  always_comb o_core_din_acp     = '0;
+  always_comb o_core_dout        = '0;
+  always_comb o_core_dout_vld    = '0;
 
   always_comb _unused = &{
     i_core_rst_n, i_core_mem_sio, i_core_din, i_core_dout_acp,

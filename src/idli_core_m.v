@@ -25,6 +25,7 @@ module idli_core_m (
 	// Trace: idli_core_m.sv:11:3
 	output reg o_core_mem_cs;
 	// Trace: idli_core_m.sv:12:3
+	// removed localparam type idli_pkg_sqi_io_mode_t
 	output reg o_core_mem_io_mode;
 	// Trace: idli_core_m.sv:15:3
 	input wire [3:0] i_core_mem_sio;
@@ -56,10 +57,9 @@ module idli_core_m (
 		if (_sv2v_0)
 			;
 		// Trace: idli_core_m.sv:33:15
-		o_core_mem_cs = 1'b1;
+		o_core_mem_cs = 1'sb1;
 	end
 	// Trace: idli_core_m.sv:34:3
-	// removed localparam type idli_pkg_sqi_io_mode_t
 	always @(*) begin
 		if (_sv2v_0)
 			;
@@ -71,28 +71,28 @@ module idli_core_m (
 		if (_sv2v_0)
 			;
 		// Trace: idli_core_m.sv:35:15
-		o_core_mem_sio = 4'b0000;
+		o_core_mem_sio = 1'sb0;
 	end
 	// Trace: idli_core_m.sv:36:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
 		// Trace: idli_core_m.sv:36:15
-		o_core_din_acp = 1'b0;
+		o_core_din_acp = 1'sb0;
 	end
 	// Trace: idli_core_m.sv:37:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
 		// Trace: idli_core_m.sv:37:15
-		o_core_dout = 4'b0000;
+		o_core_dout = 1'sb0;
 	end
 	// Trace: idli_core_m.sv:38:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
 		// Trace: idli_core_m.sv:38:15
-		o_core_dout_vld = 1'b0;
+		o_core_dout_vld = 1'sb0;
 	end
 	// Trace: idli_core_m.sv:40:3
 	always @(*) begin
