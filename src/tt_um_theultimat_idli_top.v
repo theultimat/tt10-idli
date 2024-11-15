@@ -21,9 +21,6 @@ module tt_um_theultimat_idli_top (
   // Whether SQI IO pins are currently inputs or outputs.
   wire mem_io_mode;
 
-  // Used to tie off unused inputs.
-  wire _unused;
-
   // Instantiate the top level of the core.
   idli_core_m core_u (
     .i_core_gck         (clk),
@@ -53,8 +50,6 @@ module tt_um_theultimat_idli_top (
   assign uio_out[3:2] = 2'b0;
 
   assign uo_out[1] = 1'b0;
-  assign uo_out[3] = 1'b0;
-
-  assign _unused = &{ena, ui_in[1], ui_in[3], uio_in[3:0], 1'b0};
+  assign uo_out[3] = &{ena, ui_in[1], ui_in[3], uio_in[3:0], 1'b0};
 
 endmodule
