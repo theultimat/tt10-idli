@@ -30,7 +30,7 @@ module tt_um_theultimat_idli_top (
 	// Trace: tt_um_theultimat_idli_top.sv:18:5
 	input wire rst_n;
 	// Trace: tt_um_theultimat_idli_top.sv:22:3
-	// removed localparam type idli_pkg_sqi_io_mode_t
+	// removed localparam type idli_pkg_sqi_mode_t
 	wire mem_io_mode;
 	// Trace: tt_um_theultimat_idli_top.sv:25:3
 	reg _unused;
@@ -38,11 +38,11 @@ module tt_um_theultimat_idli_top (
 	idli_core_m core_u(
 		.i_core_gck(clk),
 		.i_core_rst_n(rst_n),
-		.o_core_mem_sck(uio_out[0]),
-		.o_core_mem_cs(uio_out[1]),
-		.o_core_mem_io_mode(mem_io_mode),
-		.i_core_mem_sio(uio_in[7:4]),
-		.o_core_mem_sio(uio_out[7:4]),
+		.o_core_sqi_sck(uio_out[0]),
+		.o_core_sqi_cs(uio_out[1]),
+		.o_core_sqi_mode(mem_io_mode),
+		.i_core_sqi_data(uio_in[7:4]),
+		.o_core_sqi_data(uio_out[7:4]),
 		.i_core_din(ui_in[7:4]),
 		.i_core_din_vld(ui_in[2]),
 		.o_core_din_acp(uo_out[0]),

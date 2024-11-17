@@ -19,30 +19,30 @@ module tt_um_theultimat_idli_top import idli_pkg::*; (
 );
 
   // Whether SQI IO pins are currently inputs or outputs.
-  sqi_io_mode_t mem_io_mode;
+  sqi_mode_t mem_io_mode;
 
   // Used to tie off unused inputs.
   logic _unused;
 
   // Instantiate the top level of the core.
   idli_core_m core_u (
-    .i_core_gck         (clk),
-    .i_core_rst_n       (rst_n),
+    .i_core_gck       (clk),
+    .i_core_rst_n     (rst_n),
 
-    .o_core_mem_sck     (uio_out[0]),
-    .o_core_mem_cs      (uio_out[1]),
-    .o_core_mem_io_mode (mem_io_mode),
+    .o_core_sqi_sck   (uio_out[0]),
+    .o_core_sqi_cs    (uio_out[1]),
+    .o_core_sqi_mode  (mem_io_mode),
 
-    .i_core_mem_sio     (uio_in [7:4]),
-    .o_core_mem_sio     (uio_out[7:4]),
+    .i_core_sqi_data  (uio_in [7:4]),
+    .o_core_sqi_data  (uio_out[7:4]),
 
-    .i_core_din         (ui_in [7:4]),
-    .i_core_din_vld     (ui_in [2]),
-    .o_core_din_acp     (uo_out[0]),
+    .i_core_din       (ui_in [7:4]),
+    .i_core_din_vld   (ui_in [2]),
+    .o_core_din_acp   (uo_out[0]),
 
-    .o_core_dout        (uo_out[7:4]),
-    .o_core_dout_vld    (uo_out[2]),
-    .i_core_dout_acp    (ui_in [0])
+    .o_core_dout      (uo_out[7:4]),
+    .o_core_dout_vld  (uo_out[2]),
+    .i_core_dout_acp  (ui_in [0])
   );
 
   // SCK and CS are always outputs, and the SIO pins are configured based on
