@@ -6,6 +6,11 @@
 */
 module tb ();
 
+//    initial begin
+//        $dumpfile("test.vcd");
+//        $dumpvars(0, tb);
+//    end
+
   // Wire up the inputs and outputs:
   reg clk;
   reg rst_n;
