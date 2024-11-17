@@ -58,5 +58,8 @@ TOPLEVEL = tb
 # MODULE is the basename of the Python test file
 MODULE = test
 
+# Name of the test to compile and run.
+export IDLI_ASM ?= gcd
+
 # include cocotb's make rules to take care of the simulator setup
 include $(shell cocotb-config --makefiles)/Makefile.sim

@@ -39,4 +39,10 @@ module tb ();
       .rst_n  (rst_n)     // not reset
   );
 
+
+  // Helper signals for cocotb.
+  wire sqi_sck = uio_out[0] & uio_oe[0];
+  wire sqi_cs = uio_out[1];
+  wire [3:0] sqi_data_out = uio_out[7:4];
+
 endmodule
