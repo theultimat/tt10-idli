@@ -15,7 +15,8 @@ module idli_ctrl_m import idli_pkg::*; (
   output var sqi_mode_t   o_ctrl_sqi_mode,
   output var logic [3:0]  o_ctrl_sqi_data,
   input  var logic        i_ctrl_sqi_rd,
-  input  var logic [3:0]  i_ctrl_sqi_data
+  input  var logic [3:0]  i_ctrl_sqi_data,
+  output var logic        o_ctrl_sqi_rd_vld
 );
 
   // {{{ SQI signals
@@ -176,6 +177,17 @@ module idli_ctrl_m import idli_pkg::*; (
 
     if ((sqi_state_q == SQI_STATE_DATA) & i_ctrl_sqi_rd) begin
       o_ctrl_sqi_mode = SQI_MODE_IN;
+    end
+  end
+
+  // Data read from the SQI memory becomes valid on the falling edge so can be
+  // flopped on the rising edge of the next cycle. This is true for the final
+  // dummy cycle and any read cycle.
+  always_comb begin
+    o_ctrl_sqi_rd_vld = i_ctrl_sqi_rd;
+
+    if (sqi_state_q == SQI_STATE_DUMMY) begin
+      o_ctrl_sqi_rd_vld &= o_ctrl_ctr_last_cycle;
     end
   end
 

@@ -29,6 +29,11 @@ module idli_core_m import idli_pkg::*; (
   // Whether this is the last cycle of the period.
   logic ctr_last_cycle;
 
+  // Incoming data from the SQI memory and whether it's valid.
+  logic       sqi_rd_data_vld_q;
+  logic       sqi_rd_data_vld_d;
+  logic [3:0] sqi_rd_data_q;
+
   // Latched value of the program counter.
   logic [3:0] pc_q;
 
@@ -45,7 +50,8 @@ module idli_core_m import idli_pkg::*; (
     .o_ctrl_sqi_mode        (o_core_sqi_mode),
     .o_ctrl_sqi_data        (o_core_sqi_data),
     .i_ctrl_sqi_rd          ('1),
-    .i_ctrl_sqi_data        (pc_q)
+    .i_ctrl_sqi_data        (pc_q),
+    .o_ctrl_sqi_rd_vld      (sqi_rd_data_vld_d)
   );
 
 
@@ -60,6 +66,25 @@ module idli_core_m import idli_pkg::*; (
   );
 
 
+  // Flop incoming data from the SQI memory. The memory outputs data on the
+  // falling edge of the current cycle, so vld_d will be high on this cycle
+  // indicating we can flop the data at the start of the next cycle. The valid
+  // is always flopped for enabling e.g. decode and is reset to zero.
+  always_ff @(posedge i_core_gck, negedge i_core_rst_n) begin
+    if (!i_core_rst_n) begin
+      sqi_rd_data_vld_q <= '0;
+    end else begin
+      sqi_rd_data_vld_q <= sqi_rd_data_vld_d;
+    end
+  end
+
+  always_ff @(posedge i_core_gck) begin
+    if (sqi_rd_data_vld_d) begin
+      sqi_rd_data_q <= i_core_sqi_data;
+    end
+  end
+
+
   // TODO Make use of the signals.
   logic _unused;
 
@@ -67,8 +92,6 @@ module idli_core_m import idli_pkg::*; (
   always_comb o_core_dout        = '0;
   always_comb o_core_dout_vld    = '0;
 
-  always_comb _unused = &{
-    i_core_sqi_data, i_core_din, i_core_dout_acp, i_core_din_vld, 1'b0
-  };
+  always_comb _unused = &{i_core_din, i_core_dout_acp, i_core_din_vld, 1'b0};
 
 endmodule
