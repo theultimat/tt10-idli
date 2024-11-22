@@ -10,7 +10,7 @@ import tempfile
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles, RisingEdge
+from cocotb.triggers import ClockCycles, RisingEdge, FallingEdge
 
 
 THIS_DIR = pathlib.Path(__file__).parent.resolve()
@@ -87,18 +87,24 @@ async def sqi_sim(dut, mem):
         elif state == 'dummy1':
             state = 'read_hi'
         elif state == 'read_hi':
+            state = 'read_lo'
+        elif state == 'read_lo':
+            state = 'read_hi'
+        else:
+            raise NotImplementedError(state)
+
+        await FallingEdge(dut.sqi_sck)
+
+        # Output data on the falling edge if required.
+        if state == 'read_hi':
             data = (mem[addr] & 0xf0) >> 4
             dut._log.info(f'SQI read 0x{addr:04x}: 0x{data:x}')
             dut.uio_in.value = int(data) << 4
-            state = 'read_lo'
         elif state == 'read_lo':
             data = mem[addr] & 0xf
             dut._log.info(f'SQI read 0x{addr:04x}: 0x{data:x}')
             dut.uio_in.value = int(data) << 4
             addr += 1
-            state = 'read_hi'
-        else:
-            raise NotImplementedError(state)
 
 
 @cocotb.test()
