@@ -116,57 +116,59 @@ module idli_ctrl_m (
 		if (_sv2v_0)
 			;
 		// Trace: idli_ctrl_m.sv:146:5
+		o_ctrl_sqi_data = 1'sbx;
+		// Trace: idli_ctrl_m.sv:148:5
 		case (sqi_state_q)
 			2'd0:
-				// Trace: idli_ctrl_m.sv:149:9
+				// Trace: idli_ctrl_m.sv:151:9
 				if (ctr_q[1])
-					// Trace: idli_ctrl_m.sv:150:11
+					// Trace: idli_ctrl_m.sv:152:11
 					o_ctrl_sqi_data = (ctr_q[0] ? {3'b001, i_ctrl_sqi_rd} : {4 {1'sb0}});
 			2'd1:
-				// Trace: idli_ctrl_m.sv:155:9
+				// Trace: idli_ctrl_m.sv:157:9
 				o_ctrl_sqi_data = sqi_shift_q[15:12];
 			2'd3:
-				// Trace: idli_ctrl_m.sv:159:9
+				// Trace: idli_ctrl_m.sv:161:9
 				if (!i_ctrl_sqi_rd)
-					// Trace: idli_ctrl_m.sv:160:11
+					// Trace: idli_ctrl_m.sv:162:11
 					o_ctrl_sqi_data = sqi_shift_q[15:12];
 			default:
-				// Trace: idli_ctrl_m.sv:164:9
+				// Trace: idli_ctrl_m.sv:166:9
 				o_ctrl_sqi_data = 1'sbx;
 		endcase
 	end
-	// Trace: idli_ctrl_m.sv:172:3
+	// Trace: idli_ctrl_m.sv:174:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_ctrl_m.sv:173:5
-		o_ctrl_sqi_mode = 1'b1;
 		// Trace: idli_ctrl_m.sv:175:5
+		o_ctrl_sqi_mode = 1'b1;
+		// Trace: idli_ctrl_m.sv:177:5
 		if ((sqi_state_q == 2'd3) & i_ctrl_sqi_rd)
-			// Trace: idli_ctrl_m.sv:176:7
+			// Trace: idli_ctrl_m.sv:178:7
 			o_ctrl_sqi_mode = 1'b0;
 	end
-	// Trace: idli_ctrl_m.sv:186:3
+	// Trace: idli_ctrl_m.sv:188:3
 	always @(posedge i_ctrl_gck or negedge i_ctrl_rst_n)
-		// Trace: idli_ctrl_m.sv:187:5
+		// Trace: idli_ctrl_m.sv:189:5
 		if (!i_ctrl_rst_n)
-			// Trace: idli_ctrl_m.sv:188:7
+			// Trace: idli_ctrl_m.sv:190:7
 			ctr_q <= 1'sb0;
 		else
-			// Trace: idli_ctrl_m.sv:190:7
+			// Trace: idli_ctrl_m.sv:192:7
 			ctr_q <= ctr_d;
-	// Trace: idli_ctrl_m.sv:195:3
+	// Trace: idli_ctrl_m.sv:197:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_ctrl_m.sv:195:15
+		// Trace: idli_ctrl_m.sv:197:15
 		ctr_d = ctr_q + 2'd1;
 	end
-	// Trace: idli_ctrl_m.sv:199:3
+	// Trace: idli_ctrl_m.sv:201:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_ctrl_m.sv:199:15
+		// Trace: idli_ctrl_m.sv:201:15
 		o_ctrl_ctr_last_cycle = ctr_q == 2'd3;
 	end
 	initial _sv2v_0 = 0;

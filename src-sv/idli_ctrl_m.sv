@@ -143,6 +143,8 @@ module idli_ctrl_m import idli_pkg::*; (
 
   // Output data depends on the state and the current cycle within the period.
   always_comb begin
+    o_ctrl_sqi_data = 'x;
+
     case (sqi_state_q)
       SQI_STATE_INIT: begin
         // On the final two cycles of INIT transmit the instruction.
