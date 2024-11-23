@@ -21,6 +21,7 @@ project:
     - "idli_core_m.v"
     - "ildi_io_reg_m.v"
     - "ildi_ctrl_m.v"
+    - "ildi_decode_m.v"
     - "ildi_sqi_ctrl_m.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
