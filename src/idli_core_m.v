@@ -73,49 +73,56 @@ module idli_core_m (
 		.i_pc_ctr_last_cycle(ctr_last_cycle),
 		.o_pc_q(pc_q)
 	);
-	// Trace: idli_core_m.sv:73:3
+	// Trace: idli_core_m.sv:70:3
+	idli_decode_m decode_u(
+		.i_dcd_gck(i_core_gck),
+		.i_dcd_rst_n(i_core_rst_n),
+		.i_dcd_enc(sqi_rd_data_q),
+		.i_dcd_enc_vld(sqi_rd_data_vld_q)
+	);
+	// Trace: idli_core_m.sv:83:3
 	always @(posedge i_core_gck or negedge i_core_rst_n)
-		// Trace: idli_core_m.sv:74:5
+		// Trace: idli_core_m.sv:84:5
 		if (!i_core_rst_n)
-			// Trace: idli_core_m.sv:75:7
+			// Trace: idli_core_m.sv:85:7
 			sqi_rd_data_vld_q <= 1'sb0;
 		else
-			// Trace: idli_core_m.sv:77:7
+			// Trace: idli_core_m.sv:87:7
 			sqi_rd_data_vld_q <= sqi_rd_data_vld_d;
-	// Trace: idli_core_m.sv:81:3
-	always @(posedge i_core_gck)
-		// Trace: idli_core_m.sv:82:5
-		if (sqi_rd_data_vld_d)
-			// Trace: idli_core_m.sv:83:7
-			sqi_rd_data_q <= i_core_sqi_data;
-	// Trace: idli_core_m.sv:89:3
-	reg _unused;
 	// Trace: idli_core_m.sv:91:3
+	always @(posedge i_core_gck)
+		// Trace: idli_core_m.sv:92:5
+		if (sqi_rd_data_vld_d)
+			// Trace: idli_core_m.sv:93:7
+			sqi_rd_data_q <= i_core_sqi_data;
+	// Trace: idli_core_m.sv:99:3
+	reg _unused;
+	// Trace: idli_core_m.sv:101:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_core_m.sv:91:15
+		// Trace: idli_core_m.sv:101:15
 		o_core_din_acp = 1'sb0;
 	end
-	// Trace: idli_core_m.sv:92:3
+	// Trace: idli_core_m.sv:102:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_core_m.sv:92:15
+		// Trace: idli_core_m.sv:102:15
 		o_core_dout = 1'sb0;
 	end
-	// Trace: idli_core_m.sv:93:3
+	// Trace: idli_core_m.sv:103:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_core_m.sv:93:15
+		// Trace: idli_core_m.sv:103:15
 		o_core_dout_vld = 1'sb0;
 	end
-	// Trace: idli_core_m.sv:95:3
+	// Trace: idli_core_m.sv:105:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_core_m.sv:95:15
+		// Trace: idli_core_m.sv:105:15
 		_unused = &{i_core_din, i_core_dout_acp, i_core_din_vld, 1'b0};
 	end
 	initial _sv2v_0 = 0;

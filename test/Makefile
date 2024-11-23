@@ -5,7 +5,8 @@
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 
-SOURCE_NAMES := tt_um_theultimat_idli_top idli_core_m idli_ctrl_m idli_pc_m
+SOURCE_NAMES := tt_um_theultimat_idli_top idli_core_m idli_ctrl_m idli_pc_m \
+	idli_decode_m
 
 
 # Use SystemVerilog for verilator, sv2v converted for iverilog.

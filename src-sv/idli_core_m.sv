@@ -66,6 +66,16 @@ module idli_core_m import idli_pkg::*; (
   );
 
 
+  // Instruction decoder.
+  idli_decode_m decode_u (
+    .i_dcd_gck      (i_core_gck),
+    .i_dcd_rst_n    (i_core_rst_n),
+
+    .i_dcd_enc      (sqi_rd_data_q),
+    .i_dcd_enc_vld  (sqi_rd_data_vld_q)
+  );
+
+
   // Flop incoming data from the SQI memory. The memory outputs data on the
   // falling edge of the current cycle, so vld_d will be high on this cycle
   // indicating we can flop the data at the start of the next cycle. The valid
