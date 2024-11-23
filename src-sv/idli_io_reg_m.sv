@@ -27,8 +27,8 @@ module idli_io_reg_m import idli_pkg::*; (
     end
   end
 
-  // Output the top of the register - whether this is the first or last nibble
-  // depends on whether the data was written in big or little endian.
-  always_comb o_reg_data = data_q[15:12];
+  // Output the bottom of the register - this will be the nibble that was
+  // written on the last cycle where wr_en was high.
+  always_comb o_reg_data = data_q[3:0];
 
 endmodule

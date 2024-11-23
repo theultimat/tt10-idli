@@ -18,6 +18,7 @@ module idli_sqi_ctrl_m import idli_pkg::*; (
   output var logic          o_sqi_cs,
   output var sqi_mode_t     o_sqi_mode,
   input  var logic [3:0]    i_sqi_rd_data,
+  output var logic [3:0]    o_sqi_rd_data,
   output var logic [3:0]    o_sqi_wr_data,
   input  var logic [3:0]    i_sqi_wr_data,
   input  var logic          i_sqi_wr_data_vld
@@ -54,9 +55,17 @@ module idli_sqi_ctrl_m import idli_pkg::*; (
   logic [3:0] wr_reg_data;
   logic       wr_reg_data_wr_en;
 
+  // Data read out of memory registers and write enables.
+  logic [3:0] mem_reg_data  [2];
+  logic       mem_reg_wr_en [2];
 
-  // Address and data input register. Data is written by the core into this in
-  // LE and is read out to be transmitted to the memory in BE.
+  // Which of the memory reigsters is currently active.
+  logic active_mem_reg_q;
+  logic active_mem_reg_d;
+
+
+  // Address and data IO register. Data is written by the core into this in LE
+  // and is read out to be transmitted to the memory in BE.
   idli_io_reg_m wr_reg_u (
     .i_reg_gck    (i_sqi_gck),
 
@@ -64,6 +73,20 @@ module idli_sqi_ctrl_m import idli_pkg::*; (
     .i_reg_wr_en  (wr_reg_data_wr_en),
     .o_reg_data   (wr_reg_data)
   );
+
+  // Memory input data IO register. Data is written into this register in BE
+  // by the SQI memory and ready out by the core. Note that we have two
+  // registers for this purpose such that we can read out of one while writing
+  // into the other.
+  for (genvar REG = 0; REG < 2; REG++) begin : num_mem_regs_b
+    idli_io_reg_m mem_reg_u (
+      .i_reg_gck    (i_sqi_gck),
+
+      .i_reg_data   (i_sqi_rd_data),
+      .i_reg_wr_en  (mem_reg_wr_en[REG]),
+      .o_reg_data   (mem_reg_data [REG])
+    );
+  end : num_mem_regs_b
 
 
   // Latch the new state of the FSM if this is the final cycle of each 16b
@@ -127,5 +150,34 @@ module idli_sqi_ctrl_m import idli_pkg::*; (
   // to be read out during ADDR, and during DUMMY write data is being written
   // into the buffer to be read out during DATA.
   always_comb wr_reg_data_wr_en = (state_q == STATE_INIT) | (state_q == STATE_DUMMY);
+
+  // Flop the new value for the active memory register.
+  always_ff @(posedge i_sqi_gck) begin
+    if (i_sqi_ctr_last_cycle) begin
+      active_mem_reg_q <= active_mem_reg_d;
+    end
+  end
+
+  // We alternate which memory register is active on each four cycle period.
+  // We also ensure we don't flip the _d until the last cycle so we can use it
+  // for controlling the write/read enables.
+  always_comb begin
+    if (i_sqi_ctr_last_cycle) begin
+      active_mem_reg_d = ~active_mem_reg_q;
+    end else begin
+      active_mem_reg_d = active_mem_reg_q;
+    end
+  end
+
+  // Set write enable for the registers such that only one of the two is
+  // active at a time. Note we use the _d here as we need to know what will
+  // happen next cycle so we're ready to flop on the rising edge.
+  always_comb mem_reg_wr_en[0] = ~active_mem_reg_d;
+  always_comb mem_reg_wr_en[1] =  active_mem_reg_d;
+
+  // Route the data read from the memory out to the rest of core. This will be
+  // read from whichever register isn't currently being written to and was
+  // therefore written to on the previous four cycle period.
+  always_comb o_sqi_rd_data = mem_reg_data[~active_mem_reg_q];
 
 endmodule

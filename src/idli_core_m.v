@@ -56,13 +56,24 @@ module idli_core_m (
 		.o_ctrl_ctr(ctr),
 		.o_ctrl_ctr_last_cycle(ctr_last_cycle)
 	);
-	// Trace: idli_core_m.sv:59:3
+	// Trace: idli_core_m.sv:57:3
+	reg sqi_redirect;
+	// Trace: idli_core_m.sv:58:3
+	always @(posedge i_core_gck or negedge i_core_rst_n)
+		// Trace: idli_core_m.sv:59:5
+		if (!i_core_rst_n)
+			// Trace: idli_core_m.sv:60:7
+			sqi_redirect <= 1'sb1;
+		else
+			// Trace: idli_core_m.sv:62:7
+			sqi_redirect <= 1'sb0;
+	// Trace: idli_core_m.sv:70:3
 	idli_sqi_ctrl_m sqi_ctrl_u(
 		.i_sqi_gck(i_core_gck),
 		.i_sqi_rst_n(i_core_rst_n),
 		.i_sqi_ctr(ctr),
 		.i_sqi_ctr_last_cycle(ctr_last_cycle),
-		.i_sqi_redirect(1'sb1),
+		.i_sqi_redirect(sqi_redirect),
 		.i_sqi_rd(1'sb1),
 		.o_sqi_sck(o_core_sqi_sck),
 		.o_sqi_cs(o_core_sqi_cs),
@@ -73,34 +84,34 @@ module idli_core_m (
 		.i_sqi_wr_data(1'sb0),
 		.i_sqi_wr_data_vld(1'sb1)
 	);
-	// Trace: idli_core_m.sv:153:3
+	// Trace: idli_core_m.sv:164:3
 	reg _unused;
-	// Trace: idli_core_m.sv:155:3
+	// Trace: idli_core_m.sv:166:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_core_m.sv:155:15
+		// Trace: idli_core_m.sv:166:15
 		o_core_din_acp = 1'sb0;
 	end
-	// Trace: idli_core_m.sv:156:3
+	// Trace: idli_core_m.sv:167:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_core_m.sv:156:15
+		// Trace: idli_core_m.sv:167:15
 		o_core_dout = 1'sb0;
 	end
-	// Trace: idli_core_m.sv:157:3
+	// Trace: idli_core_m.sv:168:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_core_m.sv:157:15
+		// Trace: idli_core_m.sv:168:15
 		o_core_dout_vld = 1'sb0;
 	end
-	// Trace: idli_core_m.sv:159:3
+	// Trace: idli_core_m.sv:170:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_core_m.sv:159:15
+		// Trace: idli_core_m.sv:170:15
 		_unused = &{i_core_din, i_core_dout_acp, i_core_din_vld, 1'b0};
 	end
 	initial _sv2v_0 = 0;
