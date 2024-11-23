@@ -184,11 +184,11 @@ module idli_ctrl_m import idli_pkg::*; (
   // flopped on the rising edge of the next cycle. This is true for the final
   // dummy cycle and any read cycle.
   always_comb begin
-    o_ctrl_sqi_rd_vld = i_ctrl_sqi_rd;
-
-    if (sqi_state_q == SQI_STATE_DUMMY) begin
-      o_ctrl_sqi_rd_vld &= o_ctrl_ctr_last_cycle;
-    end
+    case (sqi_state_q)
+      SQI_STATE_DUMMY: o_ctrl_sqi_rd_vld = i_ctrl_sqi_rd & o_ctrl_ctr_last_cycle;
+      SQI_STATE_DATA:  o_ctrl_sqi_rd_vld = i_ctrl_sqi_rd;
+      default:         o_ctrl_sqi_rd_vld = '0;
+    endcase
   end
 
   // }}} SQI logic

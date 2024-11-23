@@ -156,11 +156,17 @@ module idli_ctrl_m (
 		if (_sv2v_0)
 			;
 		// Trace: idli_ctrl_m.sv:187:5
-		o_ctrl_sqi_rd_vld = i_ctrl_sqi_rd;
-		// Trace: idli_ctrl_m.sv:189:5
-		if (sqi_state_q == 2'd2)
-			// Trace: idli_ctrl_m.sv:190:7
-			o_ctrl_sqi_rd_vld = o_ctrl_sqi_rd_vld & o_ctrl_ctr_last_cycle;
+		case (sqi_state_q)
+			2'd2:
+				// Trace: idli_ctrl_m.sv:188:24
+				o_ctrl_sqi_rd_vld = i_ctrl_sqi_rd & o_ctrl_ctr_last_cycle;
+			2'd3:
+				// Trace: idli_ctrl_m.sv:189:24
+				o_ctrl_sqi_rd_vld = i_ctrl_sqi_rd;
+			default:
+				// Trace: idli_ctrl_m.sv:190:24
+				o_ctrl_sqi_rd_vld = 1'sb0;
+		endcase
 	end
 	// Trace: idli_ctrl_m.sv:200:3
 	always @(posedge i_ctrl_gck or negedge i_ctrl_rst_n)
