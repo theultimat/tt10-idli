@@ -80,7 +80,8 @@ def dump(items):
                 if target is not None:
                     comment = f' # target=0x{target:04x}'
 
-            dis = f'{item}{comment}'
+            name, rest = f'{item}'.split(maxsplit=1)
+            dis = f'{name:8}{rest}{comment}'
         else:
             dtype, val = item
 
