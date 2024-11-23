@@ -31,7 +31,7 @@ module idli_io_reg_m (
 		if (_sv2v_0)
 			;
 		// Trace: idli_io_reg_m.sv:32:15
-		o_reg_data = data_q[15:12];
+		o_reg_data = data_q[3:0];
 	end
 	initial _sv2v_0 = 0;
 endmodule
