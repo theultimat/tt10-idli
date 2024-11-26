@@ -11,6 +11,7 @@ SOURCE_NAMES :=                 \
     idli_io_reg_m               \
     idli_ctrl_m                 \
     idli_decode_m               \
+    idli_grf_m                  \
     idli_sqi_ctrl_m
 
 # Use SystemVerilog for verilator, sv2v converted for iverilog.

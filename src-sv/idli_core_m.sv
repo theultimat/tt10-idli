@@ -49,7 +49,14 @@ module idli_core_m import idli_pkg::*; (
   // Whether data being presented to the decoder is valid.
   logic dcd_enc_vld;
 
+  // Decoded instruction.
+  instr_t instr_q;
+  instr_t instr_d;
+
   // }}} Decode Signals
+
+  // {{{ Register File Signals
+  // }}} Register File Signals
 
 
   // {{{ Control Logic
@@ -100,12 +107,45 @@ module idli_core_m import idli_pkg::*; (
     .i_dcd_enc      (sqi_rd_data),
     .i_dcd_enc_vld  (dcd_enc_vld),
 
+    .o_dcd_instr    (instr_d)
+  );
+
+  // Flop the decoded instruction once decoding is complete.
+  always_ff @(posedge i_core_gck) begin
+    if (ctr_last_cycle) begin
+      instr_q <= instr_d;
+    end
+  end
+
+  // }}} Decode Logic
+
+  // {{{ Register File Logic
+
+  idli_grf_m grf_u (
+    .i_grf_gck      (i_core_gck),
+
+    .i_grf_b        (instr_q.op_b),
     /* verilator lint_off PINCONNECTEMPTY */
-    .o_dcd_instr    ()
+    .o_grf_b_data   (),
+    /* verilator lint_off PINCONNECTEMPTY */
+
+    .i_grf_c        (instr_q.op_c),
+    /* verilator lint_off PINCONNECTEMPTY */
+    .o_grf_c_data   (),
+    /* verilator lint_off PINCONNECTEMPTY */
+
+    .i_grf_a        (instr_q.op_a),
+    .i_grf_a_vld    ('0),
+    .i_grf_a_data   ('x),
+
+    .i_grf_pc_vld   ('0),
+    .i_grf_pc_data  ('x),
+    /* verilator lint_off PINCONNECTEMPTY */
+    .o_grf_pc_data  ()
     /* verilator lint_off PINCONNECTEMPTY */
   );
 
-  // }}} Decode Logic
+  // }}} Register File Logic
 
   // TODO Make use of the signals.
   logic _unused;

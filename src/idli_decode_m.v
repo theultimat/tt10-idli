@@ -20,7 +20,7 @@ module idli_decode_m (
 	// removed localparam type idli_pkg_greg_t
 	// removed localparam type idli_pkg_preg_t
 	// removed localparam type idli_pkg_instr_t
-	output wire [12:0] o_dcd_instr;
+	output reg [12:0] o_dcd_instr;
 	// Trace: idli_decode_m.sv:22:3
 	// removed localparam type state_t
 	// Trace: idli_decode_m.sv:45:3
@@ -235,6 +235,13 @@ module idli_decode_m (
 				// Trace: idli_decode_m.sv:236:17
 				op_c_wr_en = 1'sb0;
 		endcase
+	end
+	// Trace: idli_decode_m.sv:241:3
+	always @(*) begin
+		if (_sv2v_0)
+			;
+		// Trace: idli_decode_m.sv:241:15
+		o_dcd_instr = instr_q;
 	end
 	initial _sv2v_0 = 0;
 endmodule

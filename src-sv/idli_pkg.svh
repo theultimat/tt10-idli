@@ -13,6 +13,8 @@ typedef enum logic {
 typedef logic [1:0] preg_t;
 typedef logic [2:0] greg_t;
 
+localparam greg_t GREG_PC = greg_t'('1);
+
 // Decoded instruction for execution unit control.
 typedef struct packed {
   preg_t  op_p;

@@ -237,4 +237,7 @@ module idli_decode_m import idli_pkg::*; (
     endcase
   end
 
+  // Output the decoded instruction.
+  always_comb o_dcd_instr = instr_q;
+
 endmodule
