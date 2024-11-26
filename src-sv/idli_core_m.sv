@@ -98,7 +98,11 @@ module idli_core_m import idli_pkg::*; (
     .i_dcd_rst_n    (i_core_rst_n),
 
     .i_dcd_enc      (sqi_rd_data),
-    .i_dcd_enc_vld  (dcd_enc_vld)
+    .i_dcd_enc_vld  (dcd_enc_vld),
+
+    /* verilator lint_off PINCONNECTEMPTY */
+    .o_dcd_instr    ()
+    /* verilator lint_off PINCONNECTEMPTY */
   );
 
   // }}} Decode Logic

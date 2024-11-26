@@ -9,7 +9,10 @@ module idli_decode_m import idli_pkg::*; (
 
   // Encodings read from memory and their validity.
   input  var logic [3:0]  i_dcd_enc,
-  input  var logic        i_dcd_enc_vld
+  input  var logic        i_dcd_enc_vld,
+
+  // Decoded instruction.
+  output var instr_t      o_dcd_instr
 );
 
   // Decoding takes place 4b as a time as we fetch a 16b instruction over four
@@ -41,6 +44,19 @@ module idli_decode_m import idli_pkg::*; (
   // Current and next state for the decoder.
   state_t state_q;
   state_t state_d;
+
+  // State of the decoded instruction.
+  instr_t instr_q;
+
+  // Whether to write registers. If the register is read over two cycles we
+  // have two bits to keep write enables simple. We don't need to do any
+  // decoding of the actual value to flop as this can be sliced directly from
+  // the input bits.
+  logic       op_p_wr_en;
+  logic       op_q_wr_en;
+  logic [1:0] op_a_wr_en;
+  logic [1:0] op_b_wr_en;
+  logic       op_c_wr_en;
 
 
   // Reset the state to START or flop the next state.
@@ -116,6 +132,108 @@ module idli_decode_m import idli_pkg::*; (
         // All states on the final cycle return to START.
         state_d = STATE_START;
       end
+    endcase
+  end
+
+  // Flop the appropriate parts of the decoded instruction.
+  always_ff @(posedge i_dcd_gck) begin
+    if (op_p_wr_en) begin
+      instr_q.op_p <= preg_t'(i_dcd_enc[3:2]);
+    end
+
+    if (op_q_wr_en) begin
+      instr_q.op_q <= preg_t'(i_dcd_enc[2:1]);
+    end
+
+    if (op_a_wr_en[0]) begin
+      instr_q.op_a[1:0] <= i_dcd_enc[3:2];
+    end
+
+    if (op_a_wr_en[1]) begin
+      instr_q.op_a[2] <= i_dcd_enc[0];
+    end
+
+    if (op_b_wr_en[0]) begin
+      instr_q.op_b[0] <= i_dcd_enc[3];
+    end
+
+    if (op_b_wr_en[1]) begin
+      instr_q.op_b[2:1] <= i_dcd_enc[1:0];
+    end
+
+    if (op_c_wr_en) begin
+      instr_q.op_c <= greg_t'(i_dcd_enc[2:0]);
+    end
+  end
+
+  // P is always written on the first cycle of decode. Save a little power by
+  // only flopping when the input is actually valid. We don't need to do this
+  // power optimisation on the other operands as we won't move out of START
+  // unless the input is valid.
+  always_comb op_p_wr_en = (state_q == STATE_START) & i_dcd_enc_vld;
+
+  // Q is written on the second cycle of decode for operations with carry or
+  // those that write predicate registers. We write Q for OUT even though it
+  // isn't used as we can't know whether the instruction is PUTP or OUT until
+  // the next cycle.
+  always_comb begin
+    case (state_q)
+      STATE_ADCS_SBBS,
+      STATE_CMP_PUTP_OUT: op_q_wr_en = '1;
+      default:            op_q_wr_en = '0;
+    endcase
+  end
+
+  // The top bit of A is written on the second cycle when in use.
+  always_comb begin
+    case (state_q)
+      STATE_ADCS_SBBS,
+      STATE_MEM,
+      STATE_ALU_SHIFT_IN_MEM: op_a_wr_en[1] = '1;
+      default:                op_a_wr_en[1] = '0;
+    endcase
+  end
+
+  // A's bottom two bits are written on the third cycle.
+  always_comb begin
+    case (state_q)
+      STATE_ABC,
+      STATE_MEMWB,
+      STATE_SHIFT_IN: op_a_wr_en[0] = '1;
+      default:        op_a_wr_en[0] = '0;
+    endcase
+  end
+
+  // Top 2b of B is written on the third cycle. As with Q and OUT, we have to
+  // write the top bits even for IN as we don't know if we're an IN or a shift
+  // at this point.
+  always_comb begin
+    case (state_q)
+      STATE_ABC,
+      STATE_EQ_LT,
+      STATE_GE_MASK,
+      STATE_MEMWB,
+      STATE_SHIFT_IN: op_b_wr_en[1] = '1;
+      default:        op_b_wr_en[1] = '0;
+    endcase
+  end
+
+  // Final bit of B is written on the fourth and final cycle if present.
+  always_comb begin
+    case (state_q)
+      STATE_BC,
+      STATE_MEMWB_FINAL,
+      STATE_SHIFT_IN_FINAL: op_b_wr_en[0] = '1;
+      default:              op_b_wr_en[0] = '0;
+    endcase
+  end
+
+  // The complete value of C is written on the final cycle.
+  always_comb begin
+    case (state_q)
+      STATE_C,
+      STATE_BC: op_c_wr_en = '1;
+      default:  op_c_wr_en = '0;
     endcase
   end
 
