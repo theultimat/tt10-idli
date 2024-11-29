@@ -60,7 +60,17 @@ module idli_core_m (
 	reg [12:0] instr_q;
 	// Trace: idli_core_m.sv:54:3
 	wire [12:0] instr_d;
-	// Trace: idli_core_m.sv:64:3
+	// Trace: idli_core_m.sv:61:3
+	wire [3:0] grf_b_data;
+	// Trace: idli_core_m.sv:62:3
+	wire [3:0] grf_c_data;
+	// Trace: idli_core_m.sv:63:3
+	wire [3:0] grf_pc_data;
+	// Trace: idli_core_m.sv:66:3
+	wire prf_p_data;
+	// Trace: idli_core_m.sv:67:3
+	wire prf_q_data;
+	// Trace: idli_core_m.sv:74:3
 	idli_ctrl_m ctrl_u(
 		.i_ctrl_gck(i_core_gck),
 		.i_ctrl_rst_n(i_core_rst_n),
@@ -69,7 +79,7 @@ module idli_core_m (
 		.o_ctrl_sqi_redirect(sqi_redirect),
 		.o_ctrl_dcd_enc_vld(dcd_enc_vld)
 	);
-	// Trace: idli_core_m.sv:80:3
+	// Trace: idli_core_m.sv:90:3
 	idli_sqi_ctrl_m sqi_ctrl_u(
 		.i_sqi_gck(i_core_gck),
 		.i_sqi_rst_n(i_core_rst_n),
@@ -86,7 +96,7 @@ module idli_core_m (
 		.i_sqi_wr_data(1'sb0),
 		.i_sqi_wr_data_vld(1'sb1)
 	);
-	// Trace: idli_core_m.sv:103:3
+	// Trace: idli_core_m.sv:113:3
 	idli_decode_m decode_u(
 		.i_dcd_gck(i_core_gck),
 		.i_dcd_rst_n(i_core_rst_n),
@@ -94,33 +104,33 @@ module idli_core_m (
 		.i_dcd_enc_vld(dcd_enc_vld),
 		.o_dcd_instr(instr_d)
 	);
-	// Trace: idli_core_m.sv:114:3
-	always @(posedge i_core_gck)
-		// Trace: idli_core_m.sv:115:5
-		if (ctr_last_cycle)
-			// Trace: idli_core_m.sv:116:7
-			instr_q <= instr_d;
 	// Trace: idli_core_m.sv:124:3
+	always @(posedge i_core_gck)
+		// Trace: idli_core_m.sv:125:5
+		if (ctr_last_cycle)
+			// Trace: idli_core_m.sv:126:7
+			instr_q <= instr_d;
+	// Trace: idli_core_m.sv:134:3
 	idli_grf_m grf_u(
 		.i_grf_gck(i_core_gck),
 		.i_grf_b(instr_q[5-:3]),
-		.o_grf_b_data(),
+		.o_grf_b_data(grf_b_data),
 		.i_grf_c(instr_q[2-:3]),
-		.o_grf_c_data(),
+		.o_grf_c_data(grf_c_data),
 		.i_grf_a(instr_q[8-:3]),
 		.i_grf_a_vld(1'sb0),
 		.i_grf_a_data(1'sbx),
 		.i_grf_pc_vld(1'sb0),
 		.i_grf_pc_data(1'sbx),
-		.o_grf_pc_data()
+		.o_grf_pc_data(grf_pc_data)
 	);
-	// Trace: idli_core_m.sv:148:3
+	// Trace: idli_core_m.sv:152:3
 	idli_prf_m prf_u(
 		.i_prf_gck(i_core_gck),
 		.i_prf_p(instr_q[12-:2]),
-		.o_prf_p_data(),
+		.o_prf_p_data(prf_p_data),
 		.i_prf_q(instr_q[10-:2]),
-		.o_prf_q_data(),
+		.o_prf_q_data(prf_q_data),
 		.i_prf_q_wr_en(1'sb0),
 		.i_prf_q_data(1'sbx)
 	);
@@ -152,7 +162,7 @@ module idli_core_m (
 		if (_sv2v_0)
 			;
 		// Trace: idli_core_m.sv:173:15
-		_unused = &{i_core_din, i_core_dout_acp, i_core_din_vld, 1'b0};
+		_unused = &{i_core_din, i_core_dout_acp, i_core_din_vld, 1'b0, grf_b_data, grf_c_data, prf_p_data, prf_q_data};
 	end
 	initial _sv2v_0 = 0;
 endmodule

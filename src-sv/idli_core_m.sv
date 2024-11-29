@@ -56,6 +56,16 @@ module idli_core_m import idli_pkg::*; (
   // }}} Decode Signals
 
   // {{{ Register File Signals
+
+  // General purpose register outputs.
+  logic [3:0] grf_b_data;
+  logic [3:0] grf_c_data;
+  logic [3:0] grf_pc_data;
+
+  // Predicate register outputs.
+  logic prf_p_data;
+  logic prf_q_data;
+
   // }}} Register File Signals
 
 
@@ -125,14 +135,10 @@ module idli_core_m import idli_pkg::*; (
     .i_grf_gck      (i_core_gck),
 
     .i_grf_b        (instr_q.op_b),
-    /* verilator lint_off PINCONNECTEMPTY */
-    .o_grf_b_data   (),
-    /* verilator lint_on PINCONNECTEMPTY */
+    .o_grf_b_data   (grf_b_data),
 
     .i_grf_c        (instr_q.op_c),
-    /* verilator lint_off PINCONNECTEMPTY */
-    .o_grf_c_data   (),
-    /* verilator lint_on PINCONNECTEMPTY */
+    .o_grf_c_data   (grf_c_data),
 
     .i_grf_a        (instr_q.op_a),
     .i_grf_a_vld    ('0),
@@ -140,23 +146,17 @@ module idli_core_m import idli_pkg::*; (
 
     .i_grf_pc_vld   ('0),
     .i_grf_pc_data  ('x),
-    /* verilator lint_off PINCONNECTEMPTY */
-    .o_grf_pc_data  ()
-    /* verilator lint_on PINCONNECTEMPTY */
+    .o_grf_pc_data  (grf_pc_data)
   );
 
   idli_prf_m prf_u (
     .i_prf_gck      (i_core_gck),
 
     .i_prf_p        (instr_q.op_p),
-    /* verilator lint_off PINCONNECTEMPTY */
-    .o_prf_p_data   (),
-    /* verilator lint_on PINCONNECTEMPTY */
+    .o_prf_p_data   (prf_p_data),
 
     .i_prf_q        (instr_q.op_q),
-    /* verilator lint_off PINCONNECTEMPTY */
-    .o_prf_q_data   (),
-    /* verilator lint_on PINCONNECTEMPTY */
+    .o_prf_q_data   (prf_q_data),
     .i_prf_q_wr_en  ('0),
     .i_prf_q_data   ('x)
   );
@@ -170,6 +170,7 @@ module idli_core_m import idli_pkg::*; (
   always_comb o_core_dout        = '0;
   always_comb o_core_dout_vld    = '0;
 
-  always_comb _unused = &{i_core_din, i_core_dout_acp, i_core_din_vld, 1'b0};
+  always_comb _unused = &{i_core_din, i_core_dout_acp, i_core_din_vld, 1'b0,
+    grf_b_data, grf_c_data, prf_p_data, prf_q_data};
 
 endmodule
