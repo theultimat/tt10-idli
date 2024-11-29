@@ -42,49 +42,79 @@ module idli_grf_m (
 	// Trace: idli_grf_m.sv:33:3
 	reg [3:0] regs_d [1:7];
 	// Trace: idli_grf_m.sv:37:3
+	function automatic [2:0] sv2v_cast_3;
+		input reg [2:0] inp;
+		sv2v_cast_3 = inp;
+	endfunction
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_grf_m.sv:37:15
-		o_grf_b_data = (|i_grf_b ? regs_q[i_grf_b][3:0] : {4 {1'sb0}});
+		// Trace: idli_grf_m.sv:38:5
+		o_grf_b_data = 1'sb0;
+		// Trace: idli_grf_m.sv:40:5
+		begin : sv2v_autoblock_1
+			// Trace: idli_grf_m.sv:40:10
+			reg [31:0] REG;
+			// Trace: idli_grf_m.sv:40:10
+			for (REG = 1; REG < 8; REG = REG + 1)
+				begin
+					// Trace: idli_grf_m.sv:41:7
+					if (i_grf_b == sv2v_cast_3(REG))
+						// Trace: idli_grf_m.sv:42:9
+						o_grf_b_data = regs_q[REG][3:0];
+				end
+		end
 	end
-	// Trace: idli_grf_m.sv:38:3
+	// Trace: idli_grf_m.sv:47:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_grf_m.sv:38:15
-		o_grf_c_data = (|i_grf_c ? regs_q[i_grf_c][3:0] : {4 {1'sb0}});
+		// Trace: idli_grf_m.sv:48:5
+		o_grf_c_data = 1'sb0;
+		// Trace: idli_grf_m.sv:50:5
+		begin : sv2v_autoblock_2
+			// Trace: idli_grf_m.sv:50:10
+			reg [31:0] REG;
+			// Trace: idli_grf_m.sv:50:10
+			for (REG = 1; REG < 8; REG = REG + 1)
+				begin
+					// Trace: idli_grf_m.sv:51:7
+					if (i_grf_c == sv2v_cast_3(REG))
+						// Trace: idli_grf_m.sv:52:9
+						o_grf_c_data = regs_q[REG][3:0];
+				end
+		end
 	end
-	// Trace: idli_grf_m.sv:39:3
+	// Trace: idli_grf_m.sv:57:3
 	localparam [2:0] idli_pkg_GREG_PC = 3'b111;
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_grf_m.sv:39:15
+		// Trace: idli_grf_m.sv:57:15
 		o_grf_pc_data = regs_q[idli_pkg_GREG_PC][3:0];
 	end
-	// Trace: idli_grf_m.sv:42:3
+	// Trace: idli_grf_m.sv:59:3
 	genvar _gv_REG_1;
 	generate
 		for (_gv_REG_1 = 1; _gv_REG_1 < 8; _gv_REG_1 = _gv_REG_1 + 1) begin : num_regs_b
 			localparam REG = _gv_REG_1;
-			// Trace: idli_grf_m.sv:43:5
+			// Trace: idli_grf_m.sv:61:5
 			always @(*) begin
 				if (_sv2v_0)
 					;
-				// Trace: idli_grf_m.sv:44:7
+				// Trace: idli_grf_m.sv:62:7
 				regs_d[REG] = regs_q[REG][3:0];
-				// Trace: idli_grf_m.sv:48:7
+				// Trace: idli_grf_m.sv:66:7
 				if ((REG == idli_pkg_GREG_PC) & i_grf_pc_vld)
-					// Trace: idli_grf_m.sv:49:9
+					// Trace: idli_grf_m.sv:67:9
 					regs_d[REG] = i_grf_pc_data;
 				if (i_grf_a_vld & (i_grf_a == REG))
-					// Trace: idli_grf_m.sv:54:9
+					// Trace: idli_grf_m.sv:72:9
 					regs_d[REG] = i_grf_a_data;
 			end
-			// Trace: idli_grf_m.sv:59:5
+			// Trace: idli_grf_m.sv:77:5
 			always @(posedge i_grf_gck)
-				// Trace: idli_grf_m.sv:60:7
+				// Trace: idli_grf_m.sv:78:7
 				regs_q[REG] <= {regs_d[REG], regs_q[REG][15:4]};
 		end
 	endgenerate

@@ -34,12 +34,30 @@ module idli_grf_m import idli_pkg::*; (
 
 
   // Output data from each read port, replacing with zero where appropriate.
-  always_comb o_grf_b_data  = |i_grf_b ? regs_q[i_grf_b][3:0] : '0;
-  always_comb o_grf_c_data  = |i_grf_c ? regs_q[i_grf_c][3:0] : '0;
-  always_comb o_grf_pc_data =            regs_q[GREG_PC][3:0];
+  always_comb begin
+    o_grf_b_data = '0;
 
-  // Rotate registers on each cycle, latching new data if writing is enabled.
+    for (int unsigned REG = 1; REG < 8; REG++) begin
+      if (i_grf_b == greg_t'(REG)) begin
+        o_grf_b_data = regs_q[REG][3:0];
+      end
+    end
+  end
+
+  always_comb begin
+    o_grf_c_data = '0;
+
+    for (int unsigned REG = 1; REG < 8; REG++) begin
+      if (i_grf_c == greg_t'(REG)) begin
+        o_grf_c_data = regs_q[REG][3:0];
+      end
+    end
+  end
+
+  always_comb o_grf_pc_data = regs_q[GREG_PC][3:0];
+
   for (genvar REG = 1; REG < 8; REG++) begin : num_regs_b
+    // Rotate registers on each cycle, latching new data if writing is enabled.
     always_comb begin
       regs_d[REG] = regs_q[REG][3:0];
 
