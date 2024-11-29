@@ -147,7 +147,7 @@ SYNONYMS = {
     'mov':  'add.{} {}, zr, {}',
 
     # Logical and arithmetic negation.
-    'not':  'xor.{} {}, zr, {}',
+    'not':  'xor.{} {}, {}, 0xffff',
     'neg':  'sub.{} {}, zr, {}',
 
     # No-operation.
