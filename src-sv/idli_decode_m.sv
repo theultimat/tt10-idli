@@ -58,6 +58,10 @@ module idli_decode_m import idli_pkg::*; (
   logic [1:0] op_b_wr_en;
   logic       op_c_wr_en;
 
+  // ALU control signals and their write enables.
+  alu_op_t  alu_op;
+  logic     alu_op_wr_en;
+
 
   // Reset the state to START or flop the next state.
   always_ff @(posedge i_dcd_gck, negedge i_dcd_rst_n) begin
@@ -164,6 +168,10 @@ module idli_decode_m import idli_pkg::*; (
     if (op_c_wr_en) begin
       instr_q.op_c <= greg_t'(i_dcd_enc[2:0]);
     end
+
+    if (alu_op_wr_en) begin
+      instr_q.alu_op <= alu_op;
+    end
   end
 
   // P is always written on the first cycle of decode. Save a little power by
@@ -239,5 +247,36 @@ module idli_decode_m import idli_pkg::*; (
 
   // Output the decoded instruction.
   always_comb o_dcd_instr = instr_q;
+
+  // Decode ALU operation and the write enable.
+  always_comb begin
+    case (state_q)
+      STATE_ADCS_SBBS: begin
+        // ADCS and SBBS both use ADD - we invert for SUB.
+        alu_op       = ALU_OP_ADD;
+        alu_op_wr_en = '1;
+      end
+      STATE_ALU_SHIFT_IN_MEM: begin
+        // ALU ops are decoded. Shifts and IN don't need to use the ALU so
+        // these are don't care. Memory ops always perform an ADD.
+        case (i_dcd_enc[3:1])
+          3'b110:  alu_op_wr_en = '0;
+          default: alu_op_wr_en = '1;
+        endcase
+
+        casez (i_dcd_enc[3:1])
+          3'b01?:  alu_op = ALU_OP_AND;
+          3'b100:  alu_op = ALU_OP_OR;
+          3'b101:  alu_op = ALU_OP_XOR;
+          default: alu_op = ALU_OP_ADD;
+        endcase
+      end
+      default: begin
+        // Everything else is a don't care.
+        alu_op       = alu_op_t'('x);
+        alu_op_wr_en = '0;
+      end
+    endcase
+  end
 
 endmodule

@@ -15,13 +15,22 @@ typedef logic [2:0] greg_t;
 
 localparam greg_t GREG_PC = greg_t'('1);
 
+// Supported ALU operations.
+typedef enum logic [1:0] {
+  ALU_OP_ADD,
+  ALU_OP_AND,
+  ALU_OP_OR,
+  ALU_OP_XOR
+} alu_op_t;
+
 // Decoded instruction for execution unit control.
 typedef struct packed {
-  preg_t  op_p;
-  preg_t  op_q;
-  greg_t  op_a;
-  greg_t  op_b;
-  greg_t  op_c;
+  preg_t    op_p;
+  preg_t    op_q;
+  greg_t    op_a;
+  greg_t    op_b;
+  greg_t    op_c;
+  alu_op_t  alu_op;
 } instr_t;
 
 endpackage
