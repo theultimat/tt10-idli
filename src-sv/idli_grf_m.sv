@@ -45,12 +45,12 @@ module idli_grf_m import idli_pkg::*; (
 
       // PC defaults to the dedicated write port but is overwritten by the
       // A write port.
-      if ((REG + 1 == GREG_PC) & i_grf_pc_vld) begin
+      if ((REG == GREG_PC) & i_grf_pc_vld) begin
         regs_d[REG] = i_grf_pc_data;
       end
 
       // Write new value if enabled.
-      if (i_grf_a_vld & (i_grf_a == REG + 1)) begin
+      if (i_grf_a_vld & (i_grf_a == REG)) begin
         regs_d[REG] = i_grf_a_data;
       end
     end

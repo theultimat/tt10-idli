@@ -75,10 +75,10 @@ module idli_grf_m (
 				// Trace: idli_grf_m.sv:44:7
 				regs_d[REG] = regs_q[REG][3:0];
 				// Trace: idli_grf_m.sv:48:7
-				if (((REG + 1) == idli_pkg_GREG_PC) & i_grf_pc_vld)
+				if ((REG == idli_pkg_GREG_PC) & i_grf_pc_vld)
 					// Trace: idli_grf_m.sv:49:9
 					regs_d[REG] = i_grf_pc_data;
-				if (i_grf_a_vld & (i_grf_a == (REG + 1)))
+				if (i_grf_a_vld & (i_grf_a == REG))
 					// Trace: idli_grf_m.sv:54:9
 					regs_d[REG] = i_grf_a_data;
 			end
