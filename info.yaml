@@ -23,6 +23,7 @@ project:
     - "idli_ctrl_m.v"
     - "idli_decode_m.v"
     - "idli_grf_m.v"
+    - "idli_prf_m.v"
     - "idli_sqi_ctrl_m.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.

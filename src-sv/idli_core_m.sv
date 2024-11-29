@@ -127,12 +127,12 @@ module idli_core_m import idli_pkg::*; (
     .i_grf_b        (instr_q.op_b),
     /* verilator lint_off PINCONNECTEMPTY */
     .o_grf_b_data   (),
-    /* verilator lint_off PINCONNECTEMPTY */
+    /* verilator lint_on PINCONNECTEMPTY */
 
     .i_grf_c        (instr_q.op_c),
     /* verilator lint_off PINCONNECTEMPTY */
     .o_grf_c_data   (),
-    /* verilator lint_off PINCONNECTEMPTY */
+    /* verilator lint_on PINCONNECTEMPTY */
 
     .i_grf_a        (instr_q.op_a),
     .i_grf_a_vld    ('0),
@@ -142,7 +142,23 @@ module idli_core_m import idli_pkg::*; (
     .i_grf_pc_data  ('x),
     /* verilator lint_off PINCONNECTEMPTY */
     .o_grf_pc_data  ()
+    /* verilator lint_on PINCONNECTEMPTY */
+  );
+
+  idli_prf_m prf_u (
+    .i_prf_gck      (i_core_gck),
+
+    .i_prf_p        (instr_q.op_p),
     /* verilator lint_off PINCONNECTEMPTY */
+    .o_prf_p_data   (),
+    /* verilator lint_on PINCONNECTEMPTY */
+
+    .i_prf_q        (instr_q.op_q),
+    /* verilator lint_off PINCONNECTEMPTY */
+    .o_prf_q_data   (),
+    /* verilator lint_on PINCONNECTEMPTY */
+    .i_prf_q_wr_en  ('0),
+    .i_prf_q_data   ('x)
   );
 
   // }}} Register File Logic
