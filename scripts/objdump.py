@@ -52,6 +52,7 @@ def parse(args):
 # Print out the disassembly.
 def dump(items):
     addr = 0
+    lines = []
 
     for item in items:
         # If it's an instruction then we can print out the disassmebly but if
@@ -94,8 +95,36 @@ def dump(items):
                 raw = f'{val:04x}'
                 size = 2
 
-        print(f'{addr:04x}:  {raw:12}  {dis}')
+        lines.append(f'{addr:04x}:  {raw:12}  {dis}')
         addr += size
+
+    # If the same line repeats (aside from address) then don't repeat it as we
+    # just clog up the output.
+    counts = []
+    for line in lines:
+        check = line.split(':', 1)[-1]
+
+        if not counts:
+            counts.append((check, 1))
+            continue
+
+        prev, n = counts[-1]
+        if prev == check:
+            counts[-1] = (prev, n +  1)
+        else:
+            counts.append((check, 1))
+
+    i = 0
+    for _, n in counts:
+        if n < 3:
+            for line in lines[i:i + n]:
+                print(line)
+        else:
+            print(lines[i])
+            print(' *')
+            print(lines[i + n - 1])
+
+        i += n
 
 
 # Entry point.
