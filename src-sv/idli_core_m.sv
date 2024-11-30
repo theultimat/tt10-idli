@@ -68,6 +68,17 @@ module idli_core_m import idli_pkg::*; (
 
   // }}} Register File Signals
 
+  // {{{ Execution Unit Signals
+
+  // Whether the instruction should actually be executed.
+  logic ex_instr_vld;
+
+  // Outputs from the ALU.
+  logic [3:0] alu_out;
+  logic       alu_cout;
+
+  // }}} Execution Unit Signals
+
 
   // {{{ Control Logic
 
@@ -120,9 +131,12 @@ module idli_core_m import idli_pkg::*; (
     .o_dcd_instr    (instr_d)
   );
 
-  // Flop the decoded instruction once decoding is complete.
-  always_ff @(posedge i_core_gck) begin
-    if (ctr_last_cycle) begin
+  // Flop the decoded instruction once decoding is complete. Reset some of the
+  // control signals that update state.
+  always_ff @(posedge i_core_gck, negedge i_core_rst_n) begin
+    if (!i_core_rst_n) begin
+      instr_q.op_a_wr_en <= '0;
+    end else if (ctr_last_cycle & dcd_enc_vld) begin
       instr_q <= instr_d;
     end
   end
@@ -141,8 +155,8 @@ module idli_core_m import idli_pkg::*; (
     .o_grf_c_data   (grf_c_data),
 
     .i_grf_a        (instr_q.op_a),
-    .i_grf_a_vld    ('0),
-    .i_grf_a_data   ('x),
+    .i_grf_a_vld    (instr_q.op_a_wr_en & ex_instr_vld),
+    .i_grf_a_data   (alu_out),
 
     .i_grf_pc_vld   ('0),
     .i_grf_pc_data  ('x),
@@ -163,6 +177,26 @@ module idli_core_m import idli_pkg::*; (
 
   // }}} Register File Logic
 
+  // {{{ Execution Unit Logic
+
+  idli_alu_m alu_u (
+    .i_alu_gck    (i_core_gck),
+
+    .i_alu_ctr_last_cycle (ctr_last_cycle),
+    .i_alu_op             (instr_q.alu_op),
+
+    .i_alu_lhs            (grf_b_data),
+    .i_alu_rhs            (grf_c_data),
+
+    .o_alu_out            (alu_out),
+    .o_alu_cout           (alu_cout)
+  );
+
+  // Only actually execute an instruction if the predicate is non-zero.
+  always_comb ex_instr_vld = prf_p_data;
+
+  // }}} Execution Unit Logic
+
   // TODO Make use of the signals.
   logic _unused;
 
@@ -171,6 +205,6 @@ module idli_core_m import idli_pkg::*; (
   always_comb o_core_dout_vld    = '0;
 
   always_comb _unused = &{i_core_din, i_core_dout_acp, i_core_din_vld, 1'b0,
-    grf_b_data, grf_c_data, prf_p_data, prf_q_data};
+    prf_p_data, prf_q_data, alu_cout};
 
 endmodule
