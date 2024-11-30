@@ -143,7 +143,7 @@ async def check_instr(dut, sim):
     while True:
         # Wait for a valid instruction to complete - this is the next rising
         # edge after the last cycle of a valid instruction.
-        await RisingEdge(dut.i_core_gck)
+        await FallingEdge(dut.i_core_gck)
 
         instr_vld = dut.ctr_last_cycle.value & dut.instr_vld_q.value
 
@@ -151,6 +151,10 @@ async def check_instr(dut, sim):
 
         if not instr_vld:
             continue
+
+        # Advance to the next falling edge to ensure any flopping of register
+        # values have now occurred.
+        await FallingEdge(dut.i_core_gck)
 
         instr = sim.next_instr()
         dut._log.info(f'Checking instruction: {instr}')
@@ -164,14 +168,15 @@ async def check_instr(dut, sim):
 
 @cocotb.test()
 async def test_project(dut):
-    core = dut.user_project.core_u
-    sim, mem, dis = build_sim(TestCallback(core))
-
     # Check if we're gate-level as we can't access any internal signals so some
     # of the checks need to be disabled.
     gates = 'GL_TEST' in os.environ or os.environ.get('GATES') == 'yes'
     if gates:
         dut._log.info('GL_TEST: Not checking any internal signals!')
+
+    # Create simulator for comparison.
+    core = dut.user_project.core_u if not gates else None
+    sim, mem, dis = build_sim(TestCallback(core))
 
     dut._log.info('==== TEST OBJDUMP ====')
 
