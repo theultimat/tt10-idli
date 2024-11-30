@@ -10,6 +10,23 @@ module tb ();
     initial begin
         $dumpfile("test.vcd");
         $dumpvars(0, tb);
+`ifndef GL_TEST
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_q[1]);
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_q[2]);
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_q[3]);
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_q[4]);
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_q[5]);
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_q[6]);
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_q[7]);
+
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_d[1]);
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_d[2]);
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_d[3]);
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_d[4]);
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_d[5]);
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_d[6]);
+        $dumpvars(0, tb.user_project.core_u.grf_u.regs_d[7]);
+`endif
     end
 `endif
 
