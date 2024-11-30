@@ -31,6 +31,7 @@ typedef struct packed {
   greg_t    op_b;
   greg_t    op_c;
   alu_op_t  alu_op;
+  logic     op_a_wr_en;
 } instr_t;
 
 endpackage

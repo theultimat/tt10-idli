@@ -63,6 +63,11 @@ module idli_decode_m import idli_pkg::*; (
   alu_op_t  alu_op;
   logic     alu_op_wr_en;
 
+  // Write enables decoded from the instruction for operands and whether they
+  // are valid this cycle for decode.
+  logic op_a_wr_en_;
+  logic op_a_wr_en_wr_en;
+
 
   // Reset the state to START or flop the next state.
   always_ff @(posedge i_dcd_gck, negedge i_dcd_rst_n) begin
@@ -175,6 +180,10 @@ module idli_decode_m import idli_pkg::*; (
     if (alu_op_wr_en) begin
       instr_d.alu_op = alu_op;
     end
+
+    if (op_a_wr_en_wr_en) begin
+      instr_d.op_a_wr_en = op_a_wr_en_;
+    end
   end
 
   // Flop the instruction.
@@ -285,6 +294,41 @@ module idli_decode_m import idli_pkg::*; (
         // Everything else is a don't care.
         alu_op       = alu_op_t'('x);
         alu_op_wr_en = '0;
+      end
+    endcase
+  end
+
+  // A should be written by all instructions that have the operand with the
+  // exception of stores in which they are sources.
+  always_comb begin
+    case (state_q)
+      STATE_ADCS_SBBS,
+      STATE_ALU_SHIFT_IN_MEM: begin
+        // All operations here write the A register except for stores with
+        // writeback, but we'll overwrite the signal we decide here in the
+        // final cycle for these anyway.
+        op_a_wr_en_      = '1;
+        op_a_wr_en_wr_en = '1;
+      end
+      STATE_CMP_PUTP_OUT: begin
+        // These operations never write A.
+        op_a_wr_en_      = '0;
+        op_a_wr_en_wr_en = '1;
+      end
+      STATE_MEM: begin
+        // Only loads write A for non-writeback memory operations.
+        op_a_wr_en_      = ~i_dcd_enc[2];
+        op_a_wr_en_wr_en = '1;
+      end
+      STATE_MEMWB_FINAL: begin
+        // For writeback operations we don't know if it's a load or store
+        // until the final cycle.
+        op_a_wr_en_      = ~i_dcd_enc[1];
+        op_a_wr_en_wr_en = '1;
+      end
+      default: begin
+        op_a_wr_en_      = '0;
+        op_a_wr_en_wr_en = '0;
       end
     endcase
   end
