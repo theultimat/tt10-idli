@@ -49,9 +49,10 @@ module idli_core_m import idli_pkg::*; (
   // Whether data being presented to the decoder is valid.
   logic dcd_enc_vld;
 
-  // Decoded instruction.
+  // Decoded instruction and whether it's valid.
   instr_t instr_q;
   instr_t instr_d;
+  logic   instr_vld_q;
 
   // }}} Decode Signals
 
@@ -135,9 +136,10 @@ module idli_core_m import idli_pkg::*; (
   // control signals that update state.
   always_ff @(posedge i_core_gck, negedge i_core_rst_n) begin
     if (!i_core_rst_n) begin
-      instr_q.op_a_wr_en <= '0;
-    end else if (ctr_last_cycle & dcd_enc_vld) begin
-      instr_q <= instr_d;
+      instr_vld_q <= '0;
+    end else if (ctr_last_cycle) begin
+      instr_q     <= instr_d;
+      instr_vld_q <= dcd_enc_vld;
     end
   end
 
@@ -193,7 +195,7 @@ module idli_core_m import idli_pkg::*; (
   );
 
   // Only actually execute an instruction if the predicate is non-zero.
-  always_comb ex_instr_vld = prf_p_data;
+  always_comb ex_instr_vld = prf_p_data & instr_vld_q;
 
   // }}} Execution Unit Logic
 

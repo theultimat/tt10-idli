@@ -61,23 +61,25 @@ module idli_core_m (
 	reg [15:0] instr_q;
 	// Trace: idli_core_m.sv:54:3
 	wire [15:0] instr_d;
-	// Trace: idli_core_m.sv:61:3
-	wire [3:0] grf_b_data;
+	// Trace: idli_core_m.sv:55:3
+	reg instr_vld_q;
 	// Trace: idli_core_m.sv:62:3
-	wire [3:0] grf_c_data;
+	wire [3:0] grf_b_data;
 	// Trace: idli_core_m.sv:63:3
+	wire [3:0] grf_c_data;
+	// Trace: idli_core_m.sv:64:3
 	wire [3:0] grf_pc_data;
-	// Trace: idli_core_m.sv:66:3
-	wire prf_p_data;
 	// Trace: idli_core_m.sv:67:3
+	wire prf_p_data;
+	// Trace: idli_core_m.sv:68:3
 	wire prf_q_data;
-	// Trace: idli_core_m.sv:74:3
+	// Trace: idli_core_m.sv:75:3
 	reg ex_instr_vld;
-	// Trace: idli_core_m.sv:77:3
-	wire [3:0] alu_out;
 	// Trace: idli_core_m.sv:78:3
+	wire [3:0] alu_out;
+	// Trace: idli_core_m.sv:79:3
 	wire alu_cout;
-	// Trace: idli_core_m.sv:85:3
+	// Trace: idli_core_m.sv:86:3
 	idli_ctrl_m ctrl_u(
 		.i_ctrl_gck(i_core_gck),
 		.i_ctrl_rst_n(i_core_rst_n),
@@ -86,7 +88,7 @@ module idli_core_m (
 		.o_ctrl_sqi_redirect(sqi_redirect),
 		.o_ctrl_dcd_enc_vld(dcd_enc_vld)
 	);
-	// Trace: idli_core_m.sv:101:3
+	// Trace: idli_core_m.sv:102:3
 	idli_sqi_ctrl_m sqi_ctrl_u(
 		.i_sqi_gck(i_core_gck),
 		.i_sqi_rst_n(i_core_rst_n),
@@ -103,7 +105,7 @@ module idli_core_m (
 		.i_sqi_wr_data(1'sb0),
 		.i_sqi_wr_data_vld(1'sb1)
 	);
-	// Trace: idli_core_m.sv:124:3
+	// Trace: idli_core_m.sv:125:3
 	idli_decode_m decode_u(
 		.i_dcd_gck(i_core_gck),
 		.i_dcd_rst_n(i_core_rst_n),
@@ -111,16 +113,19 @@ module idli_core_m (
 		.i_dcd_enc_vld(dcd_enc_vld),
 		.o_dcd_instr(instr_d)
 	);
-	// Trace: idli_core_m.sv:136:3
+	// Trace: idli_core_m.sv:137:3
 	always @(posedge i_core_gck or negedge i_core_rst_n)
-		// Trace: idli_core_m.sv:137:5
+		// Trace: idli_core_m.sv:138:5
 		if (!i_core_rst_n)
-			// Trace: idli_core_m.sv:138:7
-			instr_q[0] <= 1'sb0;
-		else if (ctr_last_cycle & dcd_enc_vld)
-			// Trace: idli_core_m.sv:140:7
+			// Trace: idli_core_m.sv:139:7
+			instr_vld_q <= 1'sb0;
+		else if (ctr_last_cycle) begin
+			// Trace: idli_core_m.sv:141:7
 			instr_q <= instr_d;
-	// Trace: idli_core_m.sv:148:3
+			// Trace: idli_core_m.sv:142:7
+			instr_vld_q <= dcd_enc_vld;
+		end
+	// Trace: idli_core_m.sv:150:3
 	idli_grf_m grf_u(
 		.i_grf_gck(i_core_gck),
 		.i_grf_b(instr_q[8-:3]),
@@ -134,7 +139,7 @@ module idli_core_m (
 		.i_grf_pc_data(1'sbx),
 		.o_grf_pc_data(grf_pc_data)
 	);
-	// Trace: idli_core_m.sv:166:3
+	// Trace: idli_core_m.sv:168:3
 	idli_prf_m prf_u(
 		.i_prf_gck(i_core_gck),
 		.i_prf_p(instr_q[15-:2]),
@@ -144,7 +149,7 @@ module idli_core_m (
 		.i_prf_q_wr_en(1'sb0),
 		.i_prf_q_data(1'sbx)
 	);
-	// Trace: idli_core_m.sv:182:3
+	// Trace: idli_core_m.sv:184:3
 	idli_alu_m alu_u(
 		.i_alu_gck(i_core_gck),
 		.i_alu_ctr_last_cycle(ctr_last_cycle),
@@ -154,41 +159,41 @@ module idli_core_m (
 		.o_alu_out(alu_out),
 		.o_alu_cout(alu_cout)
 	);
-	// Trace: idli_core_m.sv:196:3
+	// Trace: idli_core_m.sv:198:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_core_m.sv:196:15
-		ex_instr_vld = prf_p_data;
+		// Trace: idli_core_m.sv:198:15
+		ex_instr_vld = prf_p_data & instr_vld_q;
 	end
-	// Trace: idli_core_m.sv:201:3
-	reg _unused;
 	// Trace: idli_core_m.sv:203:3
-	always @(*) begin
-		if (_sv2v_0)
-			;
-		// Trace: idli_core_m.sv:203:15
-		o_core_din_acp = 1'sb0;
-	end
-	// Trace: idli_core_m.sv:204:3
-	always @(*) begin
-		if (_sv2v_0)
-			;
-		// Trace: idli_core_m.sv:204:15
-		o_core_dout = 1'sb0;
-	end
+	reg _unused;
 	// Trace: idli_core_m.sv:205:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
 		// Trace: idli_core_m.sv:205:15
-		o_core_dout_vld = 1'sb0;
+		o_core_din_acp = 1'sb0;
+	end
+	// Trace: idli_core_m.sv:206:3
+	always @(*) begin
+		if (_sv2v_0)
+			;
+		// Trace: idli_core_m.sv:206:15
+		o_core_dout = 1'sb0;
 	end
 	// Trace: idli_core_m.sv:207:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
 		// Trace: idli_core_m.sv:207:15
+		o_core_dout_vld = 1'sb0;
+	end
+	// Trace: idli_core_m.sv:209:3
+	always @(*) begin
+		if (_sv2v_0)
+			;
+		// Trace: idli_core_m.sv:209:15
 		_unused = &{i_core_din, i_core_dout_acp, i_core_din_vld, 1'b0, prf_p_data, prf_q_data, alu_cout};
 	end
 	initial _sv2v_0 = 0;
