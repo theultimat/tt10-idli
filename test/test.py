@@ -167,6 +167,12 @@ async def test_project(dut):
     core = dut.user_project.core_u
     sim, mem, dis = build_sim(TestCallback(core))
 
+    # Check if we're gate-level as we can't access any internal signals so some
+    # of the checks need to be disabled.
+    gates = 'GL_TEST' in os.environ or os.environ.get('GATES') == 'yes'
+    if gates:
+        dut._log.info('GL_TEST: Not checking any internal signals!')
+
     dut._log.info('==== TEST OBJDUMP ====')
 
     for line in dis.splitlines():
@@ -179,7 +185,9 @@ async def test_project(dut):
     cocotb.start_soon(clock.start())
 
     await cocotb.start(sqi_sim(dut, mem))
-    await cocotb.start(check_instr(core, sim))
+
+    if not gates:
+        await cocotb.start(check_instr(core, sim))
 
     # Reset
     dut._log.info("==== RESET ====")
