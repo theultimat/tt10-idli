@@ -50,19 +50,4 @@ module tb ();
   wire sqi_cs = uio_out[1];
   wire [3:0] sqi_data_out = uio_out[7:4];
 
-  wire core_gck            = user_project.core_u.i_core_gck;
-  wire core_rst_n          = user_project.core_u.i_core_rst_n;
-  wire core_ctr_last_cycle = user_project.core_u.ctr_last_cycle;
-  wire core_instr_vld_q    = user_project.core_u.instr_vld_q;
-
-  wire [15:0] core_grf_regs_q [1:7];
-
-  assign core_grf_regs_q[1] = user_project.core_u.grf_u.regs_q[1];
-  assign core_grf_regs_q[2] = user_project.core_u.grf_u.regs_q[2];
-  assign core_grf_regs_q[3] = user_project.core_u.grf_u.regs_q[3];
-  assign core_grf_regs_q[4] = user_project.core_u.grf_u.regs_q[4];
-  assign core_grf_regs_q[5] = user_project.core_u.grf_u.regs_q[5];
-  assign core_grf_regs_q[6] = user_project.core_u.grf_u.regs_q[6];
-  assign core_grf_regs_q[7] = user_project.core_u.grf_u.regs_q[7];
-
 endmodule

@@ -36,7 +36,7 @@ class TestCallback(IdliCallback):
         if reg == isa.GREGS['zr']:
             return
 
-        rtl = self.dut.core_grf_regs_q[reg].value.integer
+        rtl = self.dut.grf_u.regs_q[reg].value.integer
         self.dut._log.info(f'- Write r{reg} sim=0x{val:04x} rtl=0x{rtl:04x}')
 
         assert rtl == val
@@ -138,16 +138,16 @@ async def sqi_sim(dut, mem):
 # Check instructions that finish execution.
 async def check_instr(dut, sim):
     # Wait for reset to complete.
-    await RisingEdge(dut.core_rst_n)
+    await RisingEdge(dut.i_core_rst_n)
 
     while True:
         # Wait for a valid instruction to complete - this is the next rising
         # edge after the last cycle of a valid instruction.
-        await RisingEdge(dut.core_gck)
+        await RisingEdge(dut.i_core_gck)
 
-        instr_vld = dut.core_ctr_last_cycle.value & dut.core_instr_vld_q.value
+        instr_vld = dut.ctr_last_cycle.value & dut.instr_vld_q.value
 
-        await RisingEdge(dut.core_gck)
+        await RisingEdge(dut.i_core_gck)
 
         if not instr_vld:
             continue
@@ -164,7 +164,8 @@ async def check_instr(dut, sim):
 
 @cocotb.test()
 async def test_project(dut):
-    sim, mem, dis = build_sim(TestCallback(dut))
+    core = dut.user_project.core_u
+    sim, mem, dis = build_sim(TestCallback(core))
 
     dut._log.info('==== TEST OBJDUMP ====')
 
@@ -178,7 +179,7 @@ async def test_project(dut):
     cocotb.start_soon(clock.start())
 
     await cocotb.start(sqi_sim(dut, mem))
-    await cocotb.start(check_instr(dut, sim))
+    await cocotb.start(check_instr(core, sim))
 
     # Reset
     dut._log.info("==== RESET ====")
