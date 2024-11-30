@@ -6,10 +6,12 @@
 */
 module tb ();
 
-//    initial begin
-//        $dumpfile("test.vcd");
-//        $dumpvars(0, tb);
-//    end
+`ifdef TB_DUMP_VCD
+    initial begin
+        $dumpfile("test.vcd");
+        $dumpvars(0, tb);
+    end
+`endif
 
   // Wire up the inputs and outputs:
   reg clk;

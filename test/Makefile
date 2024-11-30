@@ -29,6 +29,8 @@ PROJECT_SOURCES = $(addsuffix .sv,$(SOURCE_NAMES))
 
 else
 
+COMPILE_ARGS += -DTB_DUMP_VCD
+
 SRC_DIR = $(PWD)/../src
 PROJECT_SOURCES = $(addsuffix .v,$(SOURCE_NAMES))
 
