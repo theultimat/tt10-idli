@@ -94,27 +94,29 @@ module idli_grf_m (
 		o_grf_pc_data = regs_q[idli_pkg_GREG_PC][3:0];
 	end
 	// Trace: idli_grf_m.sv:59:3
-	genvar _gv_REG_1;
+	genvar _gv_IDX_1;
 	generate
-		for (_gv_REG_1 = 1; _gv_REG_1 < 8; _gv_REG_1 = _gv_REG_1 + 1) begin : num_regs_b
-			localparam REG = _gv_REG_1;
-			// Trace: idli_grf_m.sv:61:5
+		for (_gv_IDX_1 = 1; _gv_IDX_1 < 8; _gv_IDX_1 = _gv_IDX_1 + 1) begin : num_regs_b
+			localparam IDX = _gv_IDX_1;
+			// Trace: idli_grf_m.sv:60:5
+			localparam [2:0] REG = sv2v_cast_3(IDX);
+			// Trace: idli_grf_m.sv:63:5
 			always @(*) begin
 				if (_sv2v_0)
 					;
-				// Trace: idli_grf_m.sv:62:7
+				// Trace: idli_grf_m.sv:64:7
 				regs_d[REG] = regs_q[REG][3:0];
-				// Trace: idli_grf_m.sv:66:7
+				// Trace: idli_grf_m.sv:68:7
 				if ((REG == idli_pkg_GREG_PC) & i_grf_pc_vld)
-					// Trace: idli_grf_m.sv:67:9
+					// Trace: idli_grf_m.sv:69:9
 					regs_d[REG] = i_grf_pc_data;
 				if (i_grf_a_vld & (i_grf_a == REG))
-					// Trace: idli_grf_m.sv:72:9
+					// Trace: idli_grf_m.sv:74:9
 					regs_d[REG] = i_grf_a_data;
 			end
-			// Trace: idli_grf_m.sv:77:5
+			// Trace: idli_grf_m.sv:79:5
 			always @(posedge i_grf_gck)
-				// Trace: idli_grf_m.sv:78:7
+				// Trace: idli_grf_m.sv:80:7
 				regs_q[REG] <= {regs_d[REG], regs_q[REG][15:4]};
 		end
 	endgenerate

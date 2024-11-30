@@ -56,7 +56,9 @@ module idli_grf_m import idli_pkg::*; (
 
   always_comb o_grf_pc_data = regs_q[GREG_PC][3:0];
 
-  for (genvar REG = 1; REG < 8; REG++) begin : num_regs_b
+  for (genvar IDX = 1; IDX < 8; IDX++) begin : num_regs_b
+    localparam greg_t REG = greg_t'(IDX);
+
     // Rotate registers on each cycle, latching new data if writing is enabled.
     always_comb begin
       regs_d[REG] = regs_q[REG][3:0];

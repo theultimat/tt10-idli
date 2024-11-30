@@ -42,15 +42,21 @@ module idli_prf_m (
 		o_prf_q_data = (&i_prf_q ? 1'b1 : regs_q[i_prf_q]);
 	end
 	// Trace: idli_prf_m.sv:28:3
-	genvar _gv_REG_1;
+	genvar _gv_IDX_1;
+	function automatic [1:0] sv2v_cast_2;
+		input reg [1:0] inp;
+		sv2v_cast_2 = inp;
+	endfunction
 	generate
-		for (_gv_REG_1 = 0; _gv_REG_1 < 3; _gv_REG_1 = _gv_REG_1 + 1) begin : num_regs_b
-			localparam REG = _gv_REG_1;
+		for (_gv_IDX_1 = 0; _gv_IDX_1 < 3; _gv_IDX_1 = _gv_IDX_1 + 1) begin : num_regs_b
+			localparam IDX = _gv_IDX_1;
 			// Trace: idli_prf_m.sv:29:5
+			localparam [1:0] REG = sv2v_cast_2(IDX);
+			// Trace: idli_prf_m.sv:31:5
 			always @(posedge i_prf_gck)
-				// Trace: idli_prf_m.sv:30:7
+				// Trace: idli_prf_m.sv:32:7
 				if (i_prf_q_wr_en & (i_prf_q == REG))
-					// Trace: idli_prf_m.sv:31:9
+					// Trace: idli_prf_m.sv:33:9
 					regs_q[REG] <= i_prf_q_data;
 		end
 	endgenerate

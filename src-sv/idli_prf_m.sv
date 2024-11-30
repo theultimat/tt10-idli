@@ -25,7 +25,9 @@ module idli_prf_m import idli_pkg::*; (
   always_comb o_prf_q_data = &i_prf_q ? '1 : regs_q[i_prf_q];
 
   // Write register if enabled.
-  for (genvar REG = 0; REG < 3; REG++) begin : num_regs_b
+  for (genvar IDX = 0; IDX < 3; IDX++) begin : num_regs_b
+    localparam preg_t REG = preg_t'(IDX);
+
     always_ff @(posedge i_prf_gck) begin
       if (i_prf_q_wr_en & (i_prf_q == REG)) begin
         regs_q[REG] <= i_prf_q_data;
