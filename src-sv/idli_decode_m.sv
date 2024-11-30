@@ -47,6 +47,7 @@ module idli_decode_m import idli_pkg::*; (
 
   // State of the decoded instruction.
   instr_t instr_q;
+  instr_t instr_d;
 
   // Whether to write registers. If the register is read over two cycles we
   // have two bits to keep write enables simple. We don't need to do any
@@ -139,39 +140,46 @@ module idli_decode_m import idli_pkg::*; (
     endcase
   end
 
-  // Flop the appropriate parts of the decoded instruction.
-  always_ff @(posedge i_dcd_gck) begin
+  // Update the decoded instruction state.
+  always_comb begin
+    instr_d = instr_q;
+
     if (op_p_wr_en) begin
-      instr_q.op_p <= preg_t'(i_dcd_enc[3:2]);
+      instr_d.op_p = preg_t'(i_dcd_enc[3:2]);
     end
 
     if (op_q_wr_en) begin
-      instr_q.op_q <= preg_t'(i_dcd_enc[2:1]);
+      instr_d.op_q = preg_t'(i_dcd_enc[2:1]);
     end
 
     if (op_a_wr_en[0]) begin
-      instr_q.op_a[1:0] <= i_dcd_enc[3:2];
+      instr_d.op_a[1:0] = i_dcd_enc[3:2];
     end
 
     if (op_a_wr_en[1]) begin
-      instr_q.op_a[2] <= i_dcd_enc[0];
+      instr_d.op_a[2] = i_dcd_enc[0];
     end
 
     if (op_b_wr_en[0]) begin
-      instr_q.op_b[0] <= i_dcd_enc[3];
+      instr_d.op_b[0] = i_dcd_enc[3];
     end
 
     if (op_b_wr_en[1]) begin
-      instr_q.op_b[2:1] <= i_dcd_enc[1:0];
+      instr_d.op_b[2:1] = i_dcd_enc[1:0];
     end
 
     if (op_c_wr_en) begin
-      instr_q.op_c <= greg_t'(i_dcd_enc[2:0]);
+      instr_d.op_c = greg_t'(i_dcd_enc[2:0]);
     end
 
     if (alu_op_wr_en) begin
-      instr_q.alu_op <= alu_op;
+      instr_d.alu_op = alu_op;
     end
+  end
+
+  // Flop the instruction.
+  always_ff @(posedge i_dcd_gck) begin
+    instr_q <= instr_d;
   end
 
   // P is always written on the first cycle of decode. Save a little power by
@@ -245,8 +253,10 @@ module idli_decode_m import idli_pkg::*; (
     endcase
   end
 
-  // Output the decoded instruction.
-  always_comb o_dcd_instr = instr_q;
+  // Output the decoded instruction. We output the _d instead of the _q so
+  // that signals decoded on the final cycle can immediately be flopped by the
+  // execution unit.
+  always_comb o_dcd_instr = instr_d;
 
   // Decode ALU operation and the write enable.
   always_comb begin
