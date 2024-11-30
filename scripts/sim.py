@@ -5,14 +5,21 @@ import pathlib
 import isa
 
 
+# Simulator callback class. When events are called in the simulator the
+# corresponding functions will be called.
+class IdliCallback:
+    def write_greg(self, reg, val):
+        pass
+
 # Simulates the core at the instruction level. This is behavioural and in no way
 # cycle accurate!
 class Idli:
     # Initialise the simulator into its state post reset.
-    def __init__(self, path, trace=False, inputs=[]):
+    def __init__(self, path, trace=False, inputs=[], callback=None):
         self.trace = trace
         self.inputs = inputs
         self.outputs = []
+        self.callback = callback
 
         # The PC is the only GREG that gets reset by the hardware - all others
         # must be initialised by running binary. For ease of use we also set
@@ -71,11 +78,16 @@ class Idli:
             'sths': self._store,
         }
 
+    # Get a handle to the next instruction to execute.
+    def next_instr(self):
+        pc = self.gregs[isa.GREGS['pc']]
+        return isa.Instruction.from_bytes(self.mem[pc:])
+
     # Run the next instruction.
     def tick(self):
         # Fetch and decode the instruction at the current PC.
         pc = self.gregs[isa.GREGS['pc']]
-        instr = isa.Instruction.from_bytes(self.mem[pc:])
+        instr = self.next_instr()
 
         if self.trace:
             print(f'RUN    0x{pc:04x}    {instr}')
@@ -101,6 +113,9 @@ class Idli:
 
     # Write a general purpose register.
     def write_greg(self, reg, val):
+        if self.callback:
+            self.callback.write_greg(reg, val)
+
         if reg == isa.GREGS['zr']:
             return
 

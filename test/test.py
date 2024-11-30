@@ -17,12 +17,34 @@ THIS_DIR = pathlib.Path(__file__).parent.resolve()
 
 sys.path.insert(0, str(THIS_DIR.parent / 'scripts'))
 
-from sim import Idli
+from sim import Idli, IdliCallback
+import isa
+
+
+# Callback for the simulator.
+class TestCallback(IdliCallback):
+    def __init__(self, dut):
+        self.dut = dut
+
+    def write_greg(self, reg, val):
+        # Don't check the PC when writing - instead check the final PC is
+        # correct after the instruction completes.
+        if reg == isa.GREGS['pc']:
+            return
+
+        # No point in checking ZR as the hardware can't actually write it.
+        if reg == isa.GREGS['zr']:
+            return
+
+        rtl = self.dut.grf_u.regs_q[reg].value.integer
+        self.dut._log.info(f'- Write r{reg} sim=0x{val:04x} rtl=0x{rtl:04x}')
+
+        assert rtl == val
 
 
 # Assemble the test in memory and use it to initialise the simulator. Return
 # the simulator and a duplicate of the memory for the RTL to use.
-def build_sim():
+def build_sim(cb):
     path = THIS_DIR / f'asm/{os.environ["IDLI_ASM"]}.ia'
     asm = THIS_DIR.parent / 'scripts/asm.py'
 
@@ -35,9 +57,15 @@ def build_sim():
             path,
         ])
 
-        sim = Idli(tmp.name)
+        dis = subprocess.check_output([
+            'python3',
+            THIS_DIR.parent / 'scripts/objdump.py',
+            tmp.name,
+        ]).decode('utf-8')
 
-    return sim, np.copy(sim.mem)
+        sim = Idli(tmp.name, callback=cb)
+
+    return sim, np.copy(sim.mem), dis
 
 
 # Pretend to be the attached SQI memory.
@@ -107,9 +135,42 @@ async def sqi_sim(dut, mem):
             addr += 1
 
 
+# Check instructions that finish execution.
+async def check_instr(dut, sim):
+    # Wait for reset to complete.
+    await RisingEdge(dut.i_core_rst_n)
+
+    while True:
+        # Wait for a valid instruction to complete - this is the next rising
+        # edge after the last cycle of a valid instruction.
+        await RisingEdge(dut.i_core_gck)
+
+        instr_vld = dut.ctr_last_cycle.value & dut.instr_vld_q.value
+
+        await RisingEdge(dut.i_core_gck)
+
+        if not instr_vld:
+            continue
+
+        instr = sim.next_instr()
+        dut._log.info(f'Checking instruction: {instr}')
+
+        # Tick the simulator. This will invoke the callbacks to perform all
+        # required checking.
+        sim.tick()
+
+        # TODO Check PC is correct.
+
+
 @cocotb.test()
 async def test_project(dut):
-    sim, mem = build_sim()
+    core = dut.user_project.core_u
+    sim, mem, dis = build_sim(TestCallback(core))
+
+    dut._log.info('==== TEST OBJDUMP ====')
+
+    for line in dis.splitlines():
+        dut._log.info(line.rstrip())
 
     dut._log.info("==== START ====")
 
@@ -118,6 +179,7 @@ async def test_project(dut):
     cocotb.start_soon(clock.start())
 
     await cocotb.start(sqi_sim(dut, mem))
+    await cocotb.start(check_instr(core, sim))
 
     # Reset
     dut._log.info("==== RESET ====")
@@ -132,5 +194,5 @@ async def test_project(dut):
 
     dut._log.info("==== RESET COMPLETE ====")
 
-    # Wait for one clock cycle to see the output values
-    await ClockCycles(dut.clk, 32)
+    # TODO Determine end condition for test.
+    await ClockCycles(dut.clk, 48)
