@@ -161,42 +161,45 @@ module idli_sqi_ctrl_m (
 		wr_reg_data_wr_en = (state_q == 2'd0) | (state_q == 2'd2);
 	end
 	// Trace: idli_sqi_ctrl_m.sv:155:3
-	always @(posedge i_sqi_gck)
+	always @(posedge i_sqi_gck or negedge i_sqi_rst_n)
 		// Trace: idli_sqi_ctrl_m.sv:156:5
-		if (i_sqi_ctr_last_cycle)
+		if (!i_sqi_rst_n)
 			// Trace: idli_sqi_ctrl_m.sv:157:7
+			active_mem_reg_q <= 1'sb0;
+		else if (i_sqi_ctr_last_cycle)
+			// Trace: idli_sqi_ctrl_m.sv:159:7
 			active_mem_reg_q <= active_mem_reg_d;
-	// Trace: idli_sqi_ctrl_m.sv:164:3
+	// Trace: idli_sqi_ctrl_m.sv:166:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_sqi_ctrl_m.sv:165:5
+		// Trace: idli_sqi_ctrl_m.sv:167:5
 		if (i_sqi_ctr_last_cycle)
-			// Trace: idli_sqi_ctrl_m.sv:166:7
+			// Trace: idli_sqi_ctrl_m.sv:168:7
 			active_mem_reg_d = ~active_mem_reg_q;
 		else
-			// Trace: idli_sqi_ctrl_m.sv:168:7
+			// Trace: idli_sqi_ctrl_m.sv:170:7
 			active_mem_reg_d = active_mem_reg_q;
 	end
-	// Trace: idli_sqi_ctrl_m.sv:175:3
+	// Trace: idli_sqi_ctrl_m.sv:177:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_sqi_ctrl_m.sv:175:15
+		// Trace: idli_sqi_ctrl_m.sv:177:15
 		mem_reg_wr_en[0] = ~active_mem_reg_d;
 	end
-	// Trace: idli_sqi_ctrl_m.sv:176:3
+	// Trace: idli_sqi_ctrl_m.sv:178:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_sqi_ctrl_m.sv:176:15
+		// Trace: idli_sqi_ctrl_m.sv:178:15
 		mem_reg_wr_en[1] = active_mem_reg_d;
 	end
-	// Trace: idli_sqi_ctrl_m.sv:181:3
+	// Trace: idli_sqi_ctrl_m.sv:183:3
 	always @(*) begin
 		if (_sv2v_0)
 			;
-		// Trace: idli_sqi_ctrl_m.sv:181:15
+		// Trace: idli_sqi_ctrl_m.sv:183:15
 		o_sqi_rd_data = mem_reg_data[~active_mem_reg_q];
 	end
 	initial _sv2v_0 = 0;

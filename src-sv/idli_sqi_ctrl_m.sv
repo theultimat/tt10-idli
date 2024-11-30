@@ -152,8 +152,10 @@ module idli_sqi_ctrl_m import idli_pkg::*; (
   always_comb wr_reg_data_wr_en = (state_q == STATE_INIT) | (state_q == STATE_DUMMY);
 
   // Flop the new value for the active memory register.
-  always_ff @(posedge i_sqi_gck) begin
-    if (i_sqi_ctr_last_cycle) begin
+  always_ff @(posedge i_sqi_gck, negedge i_sqi_rst_n) begin
+    if (!i_sqi_rst_n) begin
+      active_mem_reg_q <= '0;
+    end else if (i_sqi_ctr_last_cycle) begin
       active_mem_reg_q <= active_mem_reg_d;
     end
   end
