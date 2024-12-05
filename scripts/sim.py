@@ -11,6 +11,9 @@ class IdliCallback:
     def write_greg(self, reg, val):
         pass
 
+    def write_preg(self, reg, val):
+        pass
+
 # Simulates the core at the instruction level. This is behavioural and in no way
 # cycle accurate!
 class Idli:
@@ -126,6 +129,9 @@ class Idli:
 
     # Write a predicate register.
     def write_preg(self, reg, val):
+        if self.callback:
+            self.callback.write_preg(reg, val)
+
         if reg == isa.PREGS['p3']:
             return
 
