@@ -58,9 +58,9 @@ module idli_core_m (
 	// removed localparam type idli_pkg_greg_t
 	// removed localparam type idli_pkg_preg_t
 	// removed localparam type idli_pkg_instr_t
-	reg [15:0] instr_q;
+	reg [16:0] instr_q;
 	// Trace: idli_core_m.sv:54:3
-	wire [15:0] instr_d;
+	wire [16:0] instr_d;
 	// Trace: idli_core_m.sv:55:3
 	reg instr_vld_q;
 	// Trace: idli_core_m.sv:62:3
@@ -128,12 +128,12 @@ module idli_core_m (
 	// Trace: idli_core_m.sv:150:3
 	idli_grf_m grf_u(
 		.i_grf_gck(i_core_gck),
-		.i_grf_b(instr_q[8-:3]),
+		.i_grf_b(instr_q[9-:3]),
 		.o_grf_b_data(grf_b_data),
-		.i_grf_c(instr_q[5-:3]),
+		.i_grf_c(instr_q[6-:3]),
 		.o_grf_c_data(grf_c_data),
-		.i_grf_a(instr_q[11-:3]),
-		.i_grf_a_vld(instr_q[0] & ex_instr_vld),
+		.i_grf_a(instr_q[12-:3]),
+		.i_grf_a_vld(instr_q[1] & ex_instr_vld),
 		.i_grf_a_data(alu_out),
 		.i_grf_pc_vld(1'sb0),
 		.i_grf_pc_data(1'sbx),
@@ -142,18 +142,18 @@ module idli_core_m (
 	// Trace: idli_core_m.sv:168:3
 	idli_prf_m prf_u(
 		.i_prf_gck(i_core_gck),
-		.i_prf_p(instr_q[15-:2]),
+		.i_prf_p(instr_q[16-:2]),
 		.o_prf_p_data(prf_p_data),
-		.i_prf_q(instr_q[13-:2]),
+		.i_prf_q(instr_q[14-:2]),
 		.o_prf_q_data(prf_q_data),
-		.i_prf_q_wr_en(1'sb0),
-		.i_prf_q_data(1'sbx)
+		.i_prf_q_wr_en(instr_q[0] & ex_instr_vld),
+		.i_prf_q_data(alu_out[0])
 	);
 	// Trace: idli_core_m.sv:184:3
 	idli_alu_m alu_u(
 		.i_alu_gck(i_core_gck),
 		.i_alu_ctr_last_cycle(ctr_last_cycle),
-		.i_alu_op(instr_q[2-:2]),
+		.i_alu_op(instr_q[3-:2]),
 		.i_alu_lhs(grf_b_data),
 		.i_alu_rhs(grf_c_data),
 		.o_alu_out(alu_out),

@@ -26,7 +26,7 @@ module idli_prf_m (
 	// Trace: idli_prf_m.sv:16:3
 	input wire i_prf_q_data;
 	// Trace: idli_prf_m.sv:20:3
-	reg regs_q [0:2];
+	reg [2:0] regs_q;
 	// Trace: idli_prf_m.sv:24:3
 	always @(*) begin
 		if (_sv2v_0)

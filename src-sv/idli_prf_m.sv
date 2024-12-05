@@ -17,7 +17,7 @@ module idli_prf_m import idli_pkg::*; (
 );
 
   // 3x1b predicate registers. P3 is always one so doesn't need actual data.
-  logic regs_q [3];
+  logic [2:0] regs_q;
 
 
   // Output data for each read port.

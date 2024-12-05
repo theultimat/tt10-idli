@@ -19,7 +19,7 @@ localparam greg_t GREG_PC = greg_t'('1);
 typedef enum logic [1:0] {
   ALU_OP_ADD,
   ALU_OP_AND,
-  ALU_OP_OR,
+  ALU_OP_OR_PUTP,
   ALU_OP_XOR
 } alu_op_t;
 
@@ -32,6 +32,7 @@ typedef struct packed {
   greg_t    op_c;
   alu_op_t  alu_op;
   logic     op_a_wr_en;
+  logic     op_q_wr_en;
 } instr_t;
 
 endpackage

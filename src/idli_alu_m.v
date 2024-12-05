@@ -47,11 +47,14 @@ module idli_alu_m (
 			2'd1:
 				// Trace: idli_alu_m.sv:41:9
 				o_alu_out = i_alu_lhs & i_alu_rhs;
-			2'd2:
+			2'd2: begin
 				// Trace: idli_alu_m.sv:44:9
 				o_alu_out = i_alu_lhs | i_alu_rhs;
+				// Trace: idli_alu_m.sv:45:9
+				o_alu_cout = o_alu_out[0];
+			end
 			default:
-				// Trace: idli_alu_m.sv:47:9
+				// Trace: idli_alu_m.sv:48:9
 				o_alu_out = i_alu_lhs ^ i_alu_rhs;
 		endcase
 	end

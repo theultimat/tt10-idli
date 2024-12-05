@@ -40,8 +40,9 @@ module idli_alu_m import idli_pkg::*; (
       ALU_OP_AND: begin
         o_alu_out = i_alu_lhs & i_alu_rhs;
       end
-      ALU_OP_OR: begin
-        o_alu_out = i_alu_lhs | i_alu_rhs;
+      ALU_OP_OR_PUTP: begin
+        o_alu_out  = i_alu_lhs | i_alu_rhs;
+        o_alu_cout = o_alu_out[0];
       end
       default: begin // ALU_OP_XOR
         o_alu_out = i_alu_lhs ^ i_alu_rhs;

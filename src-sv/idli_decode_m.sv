@@ -30,7 +30,6 @@ module idli_decode_m import idli_pkg::*; (
     STATE_ABC,
     STATE_EQ_LT,
     STATE_GE_MASK,
-    STATE_PUTP_OUT,
     STATE_SHIFT_IN,
     STATE_MEMWB,
 
@@ -67,6 +66,8 @@ module idli_decode_m import idli_pkg::*; (
   // are valid this cycle for decode.
   logic op_a_wr_en_;
   logic op_a_wr_en_wr_en;
+  logic op_q_wr_en_;
+  logic op_q_wr_en_wr_en;
 
 
   // Reset the state to START or flop the next state.
@@ -105,11 +106,12 @@ module idli_decode_m import idli_pkg::*; (
       end
       STATE_CMP_PUTP_OUT: begin
         // On this cycle we can determine the correct instruction group and
-        // diverge into the appropriate state.
+        // diverge into the appropriate state. For PUTP/OUT we go through the
+        // GE_MASK route as we want to read B (fixed as ZR) and C to feed
+        // through the ALU.
         case ({i_dcd_enc[3], i_dcd_enc[0]})
           2'b00:   state_d = STATE_EQ_LT;
-          2'b01:   state_d = STATE_GE_MASK;
-          default: state_d = STATE_PUTP_OUT;
+          default: state_d = STATE_GE_MASK;
         endcase
       end
       STATE_ALU_SHIFT_IN_MEM: begin
@@ -124,10 +126,6 @@ module idli_decode_m import idli_pkg::*; (
       STATE_ABC, STATE_EQ_LT, STATE_GE_MASK: begin
         // Continue on to the last part of B and full value of C.
         state_d = STATE_BC;
-      end
-      STATE_PUTP_OUT: begin
-        // We don't have any further decoding to do and just need to read C.
-        state_d = STATE_C;
       end
       STATE_SHIFT_IN: begin
         // We only know the final operation type on the final cycle as it's
@@ -183,6 +181,10 @@ module idli_decode_m import idli_pkg::*; (
 
     if (op_a_wr_en_wr_en) begin
       instr_d.op_a_wr_en = op_a_wr_en_;
+    end
+
+    if (op_q_wr_en_wr_en) begin
+      instr_d.op_q_wr_en = op_q_wr_en_;
     end
   end
 
@@ -285,10 +287,16 @@ module idli_decode_m import idli_pkg::*; (
 
         casez (i_dcd_enc[3:1])
           3'b01?:  alu_op = ALU_OP_AND;
-          3'b100:  alu_op = ALU_OP_OR;
+          3'b100:  alu_op = ALU_OP_OR_PUTP;
           3'b101:  alu_op = ALU_OP_XOR;
           default: alu_op = ALU_OP_ADD;
         endcase
+      end
+      STATE_CMP_PUTP_OUT: begin
+        // PUTP makes use of OR with zero and sets the final bit as the carry
+        // out on the ALU to feed into the predicate register file.
+        alu_op       = ALU_OP_OR_PUTP;
+        alu_op_wr_en = '1;
       end
       default: begin
         // Everything else is a don't care.
@@ -327,8 +335,29 @@ module idli_decode_m import idli_pkg::*; (
         op_a_wr_en_wr_en = '1;
       end
       default: begin
-        op_a_wr_en_      = '0;
+        op_a_wr_en_      = 'x;
         op_a_wr_en_wr_en = '0;
+      end
+    endcase
+  end
+
+  // Q is written by instructions that generate predicate results. This can be
+  // determined on the second cycle of decode.
+  always_comb begin
+    case (state_q)
+      STATE_ADCS_SBBS,
+      STATE_CMP_PUTP_OUT: begin
+        op_q_wr_en_      = ~(i_dcd_enc[3] & i_dcd_enc[0]);
+        op_q_wr_en_wr_en = '1;
+      end
+      STATE_MEM,
+      STATE_ALU_SHIFT_IN_MEM: begin
+        op_q_wr_en_      = '0;
+        op_q_wr_en_wr_en = '1;
+      end
+      default: begin
+        op_q_wr_en_      = 'x;
+        op_q_wr_en_wr_en = '0;
       end
     endcase
   end

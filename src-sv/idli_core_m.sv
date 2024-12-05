@@ -173,8 +173,8 @@ module idli_core_m import idli_pkg::*; (
 
     .i_prf_q        (instr_q.op_q),
     .o_prf_q_data   (prf_q_data),
-    .i_prf_q_wr_en  ('0),
-    .i_prf_q_data   ('x)
+    .i_prf_q_wr_en  (instr_q.op_q_wr_en & ex_instr_vld),
+    .i_prf_q_data   (alu_out[0])
   );
 
   // }}} Register File Logic
