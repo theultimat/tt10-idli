@@ -41,6 +41,16 @@ class TestCallback(IdliCallback):
 
         assert rtl == val
 
+    def write_preg(self, reg, val):
+        # P3 cannot be written so discard.
+        if reg == isa.PREGS['p3']:
+            return
+
+        rtl = self.dut.prf_u.regs_q[reg].value.integer
+        self.dut._log.info(f'-Write p{reg} sim=0x{val:x} rtl=0x{rtl:x}')
+
+        assert rtl == val
+
 
 # Assemble the test in memory and use it to initialise the simulator. Return
 # the simulator and a duplicate of the memory for the RTL to use.
