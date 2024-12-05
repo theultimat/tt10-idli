@@ -46,7 +46,10 @@ class TestCallback(IdliCallback):
         if reg == isa.PREGS['p3']:
             return
 
-        rtl = self.dut.prf_u.regs_q[reg].value.integer
+        if os.environ['SIM'] == 'verilator':
+            rtl = (self.dut.prf_u.regs_q.value.integer >> reg) & 1
+        else:
+            rtl = self.dut.prf_u.regs_q[reg].value.integer
         self.dut._log.info(f'-Write p{reg} sim=0x{val:x} rtl=0x{rtl:x}')
 
         assert rtl == val

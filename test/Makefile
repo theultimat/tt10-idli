@@ -2,7 +2,7 @@
 # See https://docs.cocotb.org/en/stable/quickstart.html for more info
 
 # defaults
-SIM ?= icarus
+export SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 
 SOURCE_NAMES :=                 \
