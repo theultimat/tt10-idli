@@ -305,7 +305,7 @@ class Instruction:
             raise Exception(f'{error_prefix}Not enough bytes to parse')
 
         # Read first 16b to identify the instruction.
-        data, = struct.unpack_from('<H', buffer)
+        data, = struct.unpack_from('>H', buffer)
         data = Instruction._swap_nibbles(data)
         name = None
 
@@ -336,7 +336,7 @@ class Instruction:
             if len(buffer) < 2 * ILEN // 8:
                 raise Exception(f'{error_prefix}Not enough bytes for immediate')
 
-            instr.ops['imm'], = struct.unpack_from('<h', buffer[ILEN // 8:])
+            instr.ops['imm'], = struct.unpack_from('>h', buffer[ILEN // 8:])
 
         return instr
 
@@ -360,9 +360,9 @@ class Instruction:
         enc = Instruction._swap_nibbles(int(bits, 2))
         imm = self.ops.get('imm')
 
-        out = struct.pack('<H', enc)
+        out = struct.pack('>H', enc)
         if imm is not None:
-            out += struct.pack('<h', imm)
+                out += struct.pack('>h', imm)
 
         return out
 
@@ -401,11 +401,13 @@ class Instruction:
 
     # Helper to swap the nibbles around in an encoded instruction. The decoder
     # in the RTL is simplified by taking the highest nibble first so swap these
-    # around within each byte.
+    # around within each byte. Finally we also reverse the byte endian so we
+    # consistently read from/write to the memory in big-endian while the core
+    # operates in little endian.
     @staticmethod
     def _swap_nibbles(x):
         out  = (x & 0x000f) << 4
         out |= (x & 0x00f0) >> 4
         out |= (x & 0x0f00) << 4
         out |= (x & 0xf000) >> 4
-        return out
+        return ((out & 0xff) << 8) | ((out & 0xff00) >> 8)

@@ -37,13 +37,13 @@ def parse(args):
             instr = isa.Instruction.from_bytes(data)
 
             if instr is None:
-                out.append(('half', *struct.unpack_from('<H', data)))
+                out.append(('half', *struct.unpack_from('>H', data)))
                 data = data[isa.ILEN // 2:]
             else:
                 out.append(instr)
                 data = data[instr.size() // 8:]
         else:
-            out.append(('byte', *struct.unpack_from('<B', data)))
+            out.append(('byte', *struct.unpack_from('>B', data)))
             data = data[1:]
 
     return out
@@ -62,10 +62,10 @@ def dump(items):
             enc = item.encode()
 
             if len(enc) > 2:
-                instr, imm = struct.unpack('<HH', enc)
+                instr, imm = struct.unpack('>HH', enc)
                 raw = f'{instr:04x} {imm:04x}'
             else:
-                instr, = struct.unpack('<H', enc)
+                instr, = struct.unpack('>H', enc)
                 raw = f'{instr:04x}'
 
             # Add a comment with the target PC if the instruction is a branch
