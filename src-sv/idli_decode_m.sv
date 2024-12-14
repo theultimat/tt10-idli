@@ -69,6 +69,9 @@ module idli_decode_m import idli_pkg::*; (
   logic op_q_wr_en_;
   logic op_q_wr_en_wr_en;
 
+  // Whether C is an immediate rather than a register.
+  logic op_c_imm;
+
 
   // Reset the state to START or flop the next state.
   always_ff @(posedge i_dcd_gck, negedge i_dcd_rst_n) begin
@@ -172,7 +175,8 @@ module idli_decode_m import idli_pkg::*; (
     end
 
     if (op_c_wr_en) begin
-      instr_d.op_c = greg_t'(i_dcd_enc[2:0]);
+      instr_d.op_c     = greg_t'(i_dcd_enc[2:0]);
+      instr_d.op_c_imm = op_c_imm;
     end
 
     if (alu_op_wr_en) begin
@@ -361,5 +365,9 @@ module idli_decode_m import idli_pkg::*; (
       end
     endcase
   end
+
+  // C is an immediate if the register is PC - this means the next 16b of the
+  // instruction stream is immediate data rather than instruction data.
+  always_comb op_c_imm = greg_t'(i_dcd_enc[2:0]) == GREG_PC;
 
 endmodule

@@ -75,7 +75,7 @@ module idli_sqi_ctrl_m import idli_pkg::*; (
   );
 
   // Memory input data IO register. Data is written into this register in BE
-  // by the SQI memory and ready out by the core. Note that we have two
+  // by the SQI memory and read out by the core. Note that we have two
   // registers for this purpose such that we can read out of one while writing
   // into the other.
   for (genvar REG = 0; REG < 2; REG++) begin : num_mem_regs_b

@@ -221,4 +221,4 @@ async def test_project(dut):
     dut._log.info("==== RESET COMPLETE ====")
 
     # TODO Determine end condition for test.
-    await ClockCycles(dut.clk, 48)
+    await ClockCycles(dut.clk, 60)

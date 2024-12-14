@@ -54,6 +54,9 @@ module idli_core_m import idli_pkg::*; (
   instr_t instr_d;
   logic   instr_vld_q;
 
+  // Whether the next instruction will take an immediate.
+  logic dcd_next_instr_imm;
+
   // }}} Decode Signals
 
   // {{{ Register File Signals
@@ -78,6 +81,10 @@ module idli_core_m import idli_pkg::*; (
   logic [3:0] alu_out;
   logic       alu_cout;
 
+  // Operand C data input to the ALU and its source.
+  logic [3:0] ex_op_c_data;
+  logic       ex_op_c_imm;
+
   // }}} Execution Unit Signals
 
 
@@ -92,7 +99,10 @@ module idli_core_m import idli_pkg::*; (
 
     .o_ctrl_sqi_redirect    (sqi_redirect),
 
-    .o_ctrl_dcd_enc_vld     (dcd_enc_vld)
+    .i_ctrl_dcd_op_c_imm    (instr_d.op_c_imm),
+    .o_ctrl_dcd_enc_vld     (dcd_enc_vld),
+
+    .o_ctrl_ex_op_c_imm     (ex_op_c_imm)
   );
 
   // }}} Control Logic
@@ -143,6 +153,13 @@ module idli_core_m import idli_pkg::*; (
     end
   end
 
+  // Next instruction will take an immediate if the current instruction being
+  // decoded indicates this, it's the last cycle, and the instruction in
+  // decode is valid. We also make sure the current instruction executing is
+  // valid as immediate data must come after a valid instruction has finished.
+  always_comb dcd_next_instr_imm = dcd_enc_vld & ctr_last_cycle
+                                 & instr_d.op_c_imm & instr_vld_q;
+
   // }}} Decode Logic
 
   // {{{ Register File Logic
@@ -188,7 +205,7 @@ module idli_core_m import idli_pkg::*; (
     .i_alu_op             (instr_q.alu_op),
 
     .i_alu_lhs            (grf_b_data),
-    .i_alu_rhs            (grf_c_data),
+    .i_alu_rhs            (ex_op_c_data),
 
     .o_alu_out            (alu_out),
     .o_alu_cout           (alu_cout)
@@ -196,6 +213,11 @@ module idli_core_m import idli_pkg::*; (
 
   // Only actually execute an instruction if the predicate is non-zero.
   always_comb ex_instr_vld = prf_p_data & instr_vld_q;
+
+  // Data for C comes from the GRF unless the control unit is indicating this
+  // instruction takes immediate data - in this case the immediate used
+  // directly from the memory.
+  always_comb ex_op_c_data = ex_op_c_imm ? sqi_rd_data : grf_c_data;
 
   // }}} Execution Unit Logic
 

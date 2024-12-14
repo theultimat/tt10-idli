@@ -14,7 +14,11 @@ module idli_ctrl_m import idli_pkg::*; (
   output var logic        o_ctrl_sqi_redirect,
 
   // Decode control signals.
-  output var logic        o_ctrl_dcd_enc_vld
+  input  var logic        i_ctrl_dcd_op_c_imm,
+  output var logic        o_ctrl_dcd_enc_vld,
+
+  // Execution control signals.
+  output var logic        o_ctrl_ex_op_c_imm
 );
 
   // The control unit has a state machine that directs the rest of the core
@@ -28,12 +32,16 @@ module idli_ctrl_m import idli_pkg::*; (
   //                become available.
   //
   // STEADY         Core is in a steady state.
+  //
+  // IMM            As steady but bits are immediate data rather than
+  //                instruction data.
   typedef enum logic [2:0] {
     STATE_PC_REDIRECT_0,
     STATE_PC_REDIRECT_1,
     STATE_PC_REDIRECT_2,
     STATE_PC_REDIRECT_3,
-    STATE_STEADY
+    STATE_STEADY,
+    STATE_IMM
   } state_t;
 
   // Current and next state.
@@ -87,6 +95,18 @@ module idli_ctrl_m import idli_pkg::*; (
         // Move to the steady state.
         state_d = STATE_STEADY;
       end
+      STATE_STEADY: begin
+        // If the current instruction is an immediate then move to IMM.
+        if (i_ctrl_dcd_op_c_imm) begin
+          state_d = STATE_IMM;
+        end
+      end
+      STATE_IMM: begin
+        // Once the immediate is complete we expect more instruction data so
+        // return to the steady state.
+        // TODO If branch or mem op then will need to redirect instead.
+        state_d = STATE_STEADY;
+      end
       default: begin
         // TODO
       end
@@ -108,5 +128,9 @@ module idli_ctrl_m import idli_pkg::*; (
   // Encoding is valid for the decoder if we're in the steady state and
   // therefore have instruction data ready to go.
   always_comb o_ctrl_dcd_enc_vld = state_q == STATE_STEADY;
+
+  // If state is IMM then C should be immediate data read from memory rather
+  // than the GRF.
+  always_comb o_ctrl_ex_op_c_imm = state_q == STATE_IMM;
 
 endmodule
